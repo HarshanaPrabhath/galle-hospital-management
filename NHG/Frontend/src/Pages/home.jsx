@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ClinicQueue from "../Components/Home/ClinicQueue";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";  
+import { useNavigate } from "react-router-dom";
 
-
-// ── Icons (inline SVG helpers) ──────────────────────────────────────────────
+// ── Icons (Inline SVG Helpers for strict performance) ──────────────────────
 const Icon = ({ d, size = 16, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d={d} />
@@ -16,107 +16,135 @@ const MapPinIcon = () => <Icon d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M
 const ClockIcon = () => <Icon d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2" />;
 const ChevronRight = () => <Icon d="M9 18l6-6-6-6" size={14} />;
 const AlertIcon = () => <Icon d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01" size={14} />;
-const BotIcon = () => <Icon d="M12 2a4 4 0 014 4v2a4 4 0 01-4 4 4 4 0 01-4-4V6a4 4 0 014-4z M8 22v-2a4 4 0 014-4 4 4 0 014 4v2 M2 22h20" size={14} />;
-const CalendarIcon = () => <Icon d="M3 4h18v18H3z M16 2v4 M8 2v4 M3 10h18" size={14} />;
-const SearchIcon = () => <Icon d="M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35" size={14} />;
-const UserIcon = () => <Icon d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z" size={14} />;
+const BotIcon = () => <Icon d="M12 2a4 4 0 014 4v2a4 4 0 01-4 4 4 4 0 01-4-4V6a4 4 0 014-4z M8 22v-2a4 4 0 014-4 4 4 4 0 014 4v2 M2 22h20" size={14} />;
 
-const TEAL = "#1a3c4e";
-const TEAL_DARK = "#122d3a";
-const GOLD = "#c9a227";
-const TEAL_MID = "#2d6a7f";
-const RED_LIVE = "#dc2626";
-
-// ── Color palette (dark teal + gold + white) ─────────────────────────────────
-
-
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Static Configurations Data ──────────────────────────────────────────────
+const LIVE_QUEUES = [
+  { id: 1, label: "OPD – General", count: 47, critical: false },
+  { id: 2, label: "Cardiology Clinic", count: 23, critical: false },
+  { id: 3, label: "Pediatrics OPD", count: 31, critical: false },
+  { id: 4, label: "Maternity Clinic", count: 58, critical: true },
+  { id: 5, label: "Emergency / Ambulance", count: null, critical: false },
+];
 
 
 
-// function Navbar() {
-//   const links = ["Home", "About", "Services", "Doctors", "Patient Info", "Patients", "Donate", "Contact"];
-//   return (
-//     <nav className="sticky top-0 z-50 shadow-md" style={{ background: TEAL }}>
-//       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-//         <div className="flex items-center gap-3">
-//           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden">
-//             <span className="text-xs font-bold" style={{ color: TEAL }}>NH</span>
-//           </div>
-//           <div className="text-white leading-tight">
-//             <div className="font-bold text-sm">National Hospital Galle</div>
-//             <div className="text-xs opacity-75">Ministry of Health, Government of Sri Lanka</div>
-//           </div>
-//         </div>
-//         <div className="hidden lg:flex items-center gap-1 text-sm">
-//           {links.map((l, i) => (
-//             <a key={l} href="#" className={`px-3 py-1 rounded text-white hover:bg-white/20 transition ${i === 0 ? "bg-white/20" : ""}`}>{l}</a>
-//           ))}
-//           <a href="#" className="ml-2 px-3 py-1 border border-white rounded text-white text-sm hover:bg-white/20 transition">Login</a>
-//           <a href="#" className="px-3 py-1 border border-white rounded text-white text-sm hover:bg-white/20 transition">Register</a>
-//           <a href="#" className="ml-2 px-4 py-1.5 rounded text-white text-sm font-semibold transition" style={{ background: GOLD }}>Book Appointment</a>
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// }
+const SPECIALTIES = [
+  { icon: "❤️", name: "Cardiology & ICU", desc: "Cardiac cath, angiography, ECG, echocardiography, coronary care and advanced cardiac procedures." },
+  { icon: "🤱", name: "Maternity & Gynaecology", desc: "Antenatal care, safe delivery, postnatal services, NICU and comprehensive gynaecological procedures." },
+  { icon: "🔬", name: "Surgery", desc: "General, orthopedic, laparoscopic, neuro and plastic surgeons with modern operation theatres." },
+  { icon: "👶", name: "Pediatrics & Neonatology", desc: "Children's ward, neonatal ICU, developmental clinics and child welfare services." },
+  { icon: "📡", name: "Radiology & Imaging", desc: "X-ray, CT scan, MRI, ultrasound and PACS-integrated digital imaging with 3T MRI." },
+  { icon: "🧪", name: "Laboratory & Pathology", desc: "Haematology, biochemistry, microbiology, histopathology with LIMS integration." },
+];
 
+const DOCTORS = [
+  { initials: "SK", name: "Dr. S. Karunanayake", dept: "Cardiology", quals: "MD, MRCP, DRL, FRCS", slots: "Mon–Fri, 8:00 AM", bgClass: "bg-teal-600" },
+  { initials: "RP", name: "Dr. R. Pathinge", dept: "Pediatrics", quals: "MBChB, DRCPCH, FRCPCH", slots: "Mon–Fri, 10:00 AM", bgClass: "bg-purple-600" },
+  { initials: "NW", name: "Dr. H. Wickramasinghe", dept: "Neurology", quals: "MD, DM Neurology", slots: "Mon–Fri, 10:00 AM", bgClass: "bg-emerald-600" },
+];
+
+const STATS = [
+  { num: "1,200+", label: "Hospital Beds" },
+  { num: "40+", label: "Medical Specialties" },
+  { num: "850+", label: "Medical Staff" },
+  { num: "500K+", label: "Patients / Year" },
+  { num: "3", label: "Languages Supported" },
+];
+
+const NEWS = [
+  { tag: "Health Alert", tagColor: "bg-red-50 text-red-700 border-red-100", title: "Dengue Campaign Launched in Southern Province", desc: "Health teams conducting community outreach to prevent dengue spread this season.", date: "May 3, 2026" },
+  { tag: "Facility Improve", tagColor: "bg-blue-50 text-blue-700 border-blue-100", title: "New 3T MRI Unit Inaugurated at Radiology Department", desc: "State-of-the-art 3T MRI unit offering specialised, improved diagnostic imaging capacity.", date: "April 28, 2026" },
+  { tag: "Online", tagColor: "bg-green-50 text-green-700 border-green-100", title: "Online Appointment System Now Live for All OPD Departments", desc: "Patients can now book, reschedule or cancel appointments from the hospital website.", date: "April 22, 2026" },
+];
+
+// ── Shared Layout/Card Components ───────────────────────────────────────────
+function SectionHeader({ subtitle, title, rightContent }) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-1">{subtitle}</p>
+        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">{title}</h2>
+      </div>
+      {rightContent}
+    </div>
+  );
+}
+
+// ── Functional Sub-components ───────────────────────────────────────────────
 function HealthAlert() {
   return (
-    <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center gap-2 text-sm text-amber-800">
-      <AlertIcon />
-      <strong>Health Alert:</strong>&nbsp;Elevated dengue activity in Galle District. Eliminate stagnant water. Seek OPD care for symptoms of fever, rash or joint pain.&nbsp;
-      <a href="#" className="underline font-medium">Read advisory →</a>
+    <div className="bg-amber-50 border-b border-amber-200/60 px-4 py-2.5 transition-all">
+      <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2 text-xs md:text-sm text-amber-900">
+        <div className="flex items-center gap-2">
+          <span className="text-amber-500 animate-pulse"><AlertIcon /></span>
+          <span><strong>Health Advisory:</strong> Elevated dengue activity in Galle District. Eliminate standing water. Seek immediate OPD care if symptoms emerge.</span>
+        </div>
+        <a href="#" className="underline font-semibold hover:text-amber-950 transition whitespace-nowrap">Read Advisory →</a>
+      </div>
     </div>
   );
 }
 
 function HeroSection() {
-  const liveQueues = [
-    { label: "OPD – General", count: 47, color: "#2d6a7f" },
-    { label: "Cardiology Clinic", count: 23, color: "#2d6a7f" },
-    { label: "Pediatrics OPD", count: 31, color: "#2d6a7f" },
-    { label: "Maternity Clinic", count: 58, color: RED_LIVE },
-    { label: "Emergency / Ambulance", count: null, color: "#374151" },
-  ];
+  const navigate = useNavigate();
   return (
-    <section className="py-12 px-4" style={{ background: `linear-gradient(135deg, ${TEAL} 55%, ${TEAL_MID} 100%)` }}>
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
-        {/* Left */}
-        <div className="flex-1 text-white">
-          <div className="inline-block text-xs border border-yellow-400 text-yellow-300 px-2 py-0.5 rounded mb-4">
+    <section className="py-16 px-4 bg-gradient-to-br from-slate-900 via-teal-950 to-slate-950 border-b border-slate-800">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
+        {/* Left Headline */}
+        <div className="flex-1 text-center lg:text-left">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wide border border-amber-500/40 text-amber-400 bg-amber-500/5 px-2.5 py-1 rounded-md mb-5">
             Tertiary Teaching Hospital · Est. 1949 · ISO Accredited
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-            Compassionate Care<br />
-            for <span style={{ color: GOLD }}>Every Life</span> in<br />
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] mb-6">
+            Compassionate Care <br />
+            for <span className="text-amber-400">Every Life</span> in <br />
             Southern Sri Lanka
           </h1>
-          <p className="text-white/80 text-sm max-w-md mb-8 leading-relaxed">
-            National Hospital Galle is the premiere tertiary-care institution serving the Southern Province – with over 1,200 beds, 40+ specialties, multilingual services, and online appointment booking available around the clock.
+          <p className="text-slate-300 text-sm md:text-base max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed font-medium">
+            National Hospital Galle is the premier tertiary-care institution serving the Southern Province – built with over 1,200 beds, 40+ specialties, automated clinic lines, and multi-language support.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <button className="px-5 py-2.5 rounded font-semibold text-white transition hover:opacity-90" style={{ background: GOLD }}>Book Appointment</button>
-            <button className="px-5 py-2.5 rounded font-semibold border border-white text-white hover:bg-white/10 transition">Find a Doctor</button>
-            <button className="px-5 py-2.5 rounded font-semibold border border-white text-white hover:bg-white/10 transition flex items-center gap-2"><BotIcon />AI Assistant</button>
+          <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+            <button    onClick={() => navigate("/book-appointment")} 
+            className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-98 shadow-md shadow-amber-500/10 transition-all">
+             
+              Book Appointment
+            </button>
+
+            
+            <button className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-700 text-white hover:bg-slate-800/50 active:scale-98 transition-all">
+              Find a Doctor
+            </button>
+            <button className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-teal-500/30 text-teal-300 bg-teal-500/5 hover:bg-teal-500/10 flex items-center gap-2 active:scale-98 transition-all">
+              <BotIcon /> AI Assistant
+            </button>
           </div>
         </div>
-        {/* Right – Live Queue Card */}
-        <div className="w-full lg:w-72 bg-white/10 backdrop-blur rounded-2xl p-5 text-white border border-white/20 shadow-lg">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
-            <span className="text-xs uppercase tracking-widest text-green-300">Live Queue Status</span>
-          </div>
-          {liveQueues.map((q) => (
-            <div key={q.label} className="flex justify-between items-center py-2 border-b border-white/10 last:border-0">
-              <span className="text-sm text-white/80">{q.label}</span>
-              {q.count !== null ? (
-                <span className="text-xl font-bold" style={{ color: q.count >= 50 ? "#f87171" : "#86efac" }}>{q.count}</span>
-              ) : (
-                <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Open 24h</span>
-              )}
+
+        {/* Right – Interactive Live Queue Dashboard */}
+        <div className="w-full lg:w-80 bg-slate-900/60 backdrop-blur-md rounded-2xl p-6 border border-slate-800 shadow-xl">
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-xs uppercase font-bold tracking-widest text-emerald-400">Live Status Dashboard</span>
             </div>
-          ))}
+          </div>
+          <div className="space-y-3">
+            {LIVE_QUEUES.map((q) => (
+              <div key={q.id} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-slate-800/40 transition">
+                <span className="text-xs font-semibold text-slate-300">{q.label}</span>
+                {q.count !== null ? (
+                  <span className={`text-base font-extrabold ${q.critical ? "text-rose-400" : "text-emerald-400"}`}>
+                    {q.count} <span className="text-[10px] font-medium text-slate-500">waiting</span>
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700/60">
+                    Open 24H
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -125,20 +153,20 @@ function HeroSection() {
 
 function QuickNav() {
   const items = [
-    { icon: "📅", label: "Book Appointment", sub: "Online booking" },
-    { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Directory & profiles" },
-    { icon: "🏥", label: "Today's Clinics", sub: "Real-time schedule" },
-    { icon: "🚑", label: "Emergency Help", sub: "24/7 assistance" },
-    { icon: "🤖", label: "AI Chat Assistant", sub: "Multilingual support" },
+    { icon: "📅", label: "Book Appointment", sub: "Online scheduling" },
+    { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Profiles & specialties" },
+    { icon: "🏥", label: "Today's Clinics", sub: "Real-time updates" },
+    { icon: "🚑", label: "Emergency Help", sub: "Ambulance response" },
+    { icon: "🤖", label: "AI Assistant", sub: "24/7 patient support" },
   ];
   return (
-    <div className="border-b border-gray-200 bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 flex overflow-x-auto divide-x divide-gray-200">
+    <div className="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 flex overflow-x-auto scrollbar-hide divide-x divide-slate-100">
         {items.map((item) => (
-          <button key={item.label} className="flex-1 min-w-max flex flex-col items-center py-3 px-5 hover:bg-gray-50 transition group">
-            <span className="text-xl mb-0.5">{item.icon}</span>
-            <span className="text-xs font-semibold text-gray-800 group-hover:text-teal-700">{item.label}</span>
-            <span className="text-xs text-gray-400">{item.sub}</span>
+          <button key={item.label} className="flex-1 min-w-[140px] md:min-w-max flex flex-col items-center text-center py-4 px-5 hover:bg-slate-50 transition-all group">
+            <span className="text-xl mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
+            <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700 transition-colors whitespace-nowrap">{item.label}</span>
+            <span className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">{item.sub}</span>
           </button>
         ))}
       </div>
@@ -146,34 +174,28 @@ function QuickNav() {
   );
 }
 
-
-
 function ClinicalSpecialties() {
-  const specialties = [
-    { icon: "❤️", name: "Cardiology & ICU", desc: "Cardiac cath, angiography, ECG, echocardiography, coronary care and advanced cardiac procedures." },
-    { icon: "🤱", name: "Maternity & Gynaecology", desc: "Antenatal care, safe delivery, postnatal services, NICU and comprehensive gynaecological procedures." },
-    { icon: "🔬", name: "Surgery", desc: "General, orthopedic, laparoscopic, neuro and plastic surgeons with modern operation theatres." },
-    { icon: "👶", name: "Pediatrics & Neonatology", desc: "Children's ward, neonatal ICU, developmental clinics and child welfare services." },
-    { icon: "📡", name: "Radiology & Imaging", desc: "X-ray, CT scan, MRI, ultrasound and PACS-integrated digital imaging with 3T MRI." },
-    { icon: "🧪", name: "Laboratory & Pathology", desc: "Haematology, biochemistry, microbiology, histopathology with LIMS integration." },
-  ];
   return (
-    <section className="py-12 px-4 bg-white">
+    <section className="py-16 px-4 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: TEAL_MID }}>Departments & Services</p>
-            <h2 className="text-2xl font-bold text-gray-900">Clinical Specialties</h2>
-          </div>
-          <a href="#" className="text-sm font-medium flex items-center gap-1" style={{ color: TEAL }}>View all 40+ departments <ChevronRight /></a>
-        </div>
+        <SectionHeader 
+          subtitle="Departments & Services" 
+          title="Clinical Specialties" 
+          rightContent={
+            <a href="#" className="text-xs font-bold text-teal-700 hover:text-teal-800 flex items-center gap-1 group">
+              View all 40+ departments <span className="group-hover:translate-x-1 transition-transform"><ChevronRight /></span>
+            </a>
+          }
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {specialties.map((s) => (
-            <div key={s.name} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition group">
-              <div className="text-3xl mb-3">{s.icon}</div>
-              <h3 className="font-bold text-gray-800 mb-2 group-hover:text-teal-700 transition">{s.name}</h3>
-              <p className="text-sm text-gray-500 mb-4 leading-relaxed">{s.desc}</p>
-              <a href="#" className="text-xs font-semibold flex items-center gap-1" style={{ color: TEAL_MID }}>View department <ChevronRight /></a>
+          {SPECIALTIES.map((s) => (
+            <div key={s.name} className="bg-white border border-slate-200/60 rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">{s.icon}</div>
+              <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700 transition-colors">{s.name}</h3>
+              <p className="text-xs text-slate-500 mb-5 leading-relaxed">{s.desc}</p>
+              <a href="#" className="text-xs font-bold text-slate-600 hover:text-teal-700 flex items-center gap-1">
+                View Department Details <ChevronRight />
+              </a>
             </div>
           ))}
         </div>
@@ -183,78 +205,88 @@ function ClinicalSpecialties() {
 }
 
 function BookingSection() {
-  const [dept, setDept] = useState("");
-  const [doc, setDoc] = useState("");
-  const [date, setDate] = useState("");
-  const [nic, setNic] = useState("");
+  const [form, setForm] = useState({ dept: "", doc: "", date: "", nic: "" });
+  const [loading, setLoading] = useState(false);
+
+  const handleBook = (e) => {
+    e.preventDefault();
+    if (!form.dept || !form.nic) return alert("Please fill standard required fields");
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      alert(`Success! Check SMS queue alerts dispatched for target registry reference ID.`);
+    }, 1200);
+  };
 
   const steps = [
-    "Select department and consultant",
-    "Choose preferred date and time slot",
-    "Enter your NIC or phone number",
-    "Receive SMS/email confirmation instantly",
+    "Select department and specialized consultant",
+    "Choose preferred date and session slot",
+    "Enter verification parameter (NIC / Passport Number)",
+    "Receive transactional SMS gate allocation token pass",
   ];
 
   return (
-    <section className="py-14 px-4 bg-gray-50">
+    <section className="py-16 px-4 bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-start">
-        {/* Left */}
-        <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: TEAL_MID }}>Online Appointment</p>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Book Your Visit in Minutes</h2>
-          <p className="text-sm text-gray-500 mb-8 leading-relaxed max-w-sm">
-            Use our booking system to select your consultant, pick a time slot, and receive an SMS confirmation – from anywhere, in your language.
+        {/* Left Info Panel */}
+        <div className="flex-1 lg:max-w-xl">
+          <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Automated Online Access</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">Book Your Consultant Consultation in Minutes</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+            Eliminate traditional waiting windows. Secure appointment passes, track physical attendance queues live, and aggregate treatment schedules seamlessly under unified national healthcare records profiles.
           </p>
-          <ol className="space-y-3 mb-8">
+          <ol className="space-y-4 mb-8">
             {steps.map((s, i) => (
-              <li key={s} className="flex items-start gap-3">
-                <span className="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold flex-shrink-0" style={{ background: TEAL }}>{i + 1}</span>
-                <span className="text-sm text-gray-700">{s}</span>
+              <li key={i} className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-teal-900 text-amber-400 text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
+                <span className="text-sm font-medium text-slate-700 mt-0.5">{s}</span>
               </li>
             ))}
           </ol>
-          <div className="border border-gray-200 rounded-xl p-5 bg-white">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: TEAL_MID }}>Patient Registration</p>
-            <p className="text-sm text-gray-500 mb-4">Register for My-NHGT to manage your appointments, view medical history, and receive test results and prescriptions.</p>
-            <button className="text-sm font-semibold px-4 py-2 rounded border transition" style={{ borderColor: TEAL, color: TEAL }}>Register as a Patient</button>
+          <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50">
+            <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide mb-1">Patient Digital Portal Registration</h4>
+            <p className="text-xs text-slate-500 mb-4">Sync records across lab operations and prescriptions diagnostics lists automatically via My-NHG accounts.</p>
+            <button className="text-xs font-bold px-4 py-2 rounded-xl border border-teal-950 text-teal-950 hover:bg-teal-950 hover:text-white transition-all">Register Patient Profile</button>
           </div>
         </div>
 
-        {/* Right – Quick Appointment Form */}
-        <div className="w-full lg:w-96 bg-white rounded-2xl shadow-lg border border-gray-200 p-7">
-          <h3 className="font-bold text-gray-900 mb-5 text-lg">Quick Appointment</h3>
-          <div className="space-y-4">
+        {/* Right – Interactive Scheduling Engine Widget */}
+        <div className="w-full lg:w-[400px] bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8">
+          <h3 className="font-extrabold text-slate-900 mb-5 text-lg tracking-tight">Quick Session Allocator</h3>
+          <form onSubmit={handleBook} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Department</label>
-              <select value={dept} onChange={(e) => setDept(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                <option value="">Select Department</option>
-                <option>OPD – General Medicine</option>
-                <option>Cardiology</option>
-                <option>Pediatrics</option>
-                <option>Maternity</option>
-                <option>Surgery</option>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Clinical Department</label>
+              <select value={form.dept} onChange={e => setForm({...form, dept: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                <option value="">Select Target Stream</option>
+                <option>Cardiology & ICU</option>
+                <option>Pediatrics & Neonatology</option>
+                <option>Maternity & Gynaecology</option>
+                <option>Neurology</option>
+                <option>General Surgery</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Consultant / Doctor</label>
-              <select value={doc} onChange={(e) => setDoc(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                <option value="">Select Doctor</option>
-                <option>Dr. Karunanayake</option>
-                <option>Dr. Pathinge</option>
-                <option>Dr. Wickramasinghe</option>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Consultant Physician</label>
+              <select value={form.doc} onChange={e => setForm({...form, doc: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                <option value="">Select Professional Desk</option>
+                <option>Dr. S. Karunanayake (Cardiology)</option>
+                <option>Dr. R. Pathinge (Pediatrics)</option>
+                <option>Dr. H. Wickramasinghe (Neurology)</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Preferred Date</label>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Target Window Date</label>
+              <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">NIC / Phone Number</label>
-              <input type="text" placeholder="Enter NIC or mobile number" value={nic} onChange={(e) => setNic(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">National ID (NIC) / Mobile Number</label>
+              <input type="text" placeholder="Identity reference parameters" value={form.nic} onChange={e => setForm({...form, nic: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" />
             </div>
-            <button className="w-full py-3 rounded-lg text-white font-semibold text-sm transition hover:opacity-90" style={{ background: TEAL }}>Check Available Slots</button>
-            <p className="text-xs text-gray-400 text-center">You will receive an SMS confirmation after booking.</p>
-          </div>
+            <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 shadow-md shadow-slate-900/10 transition-all">
+              {loading ? "Scanning Desk Logs..." : "Verify Slot Availability"}
+            </button>
+            <p className="text-[10px] text-slate-400 text-center">SMS token verification pipelines apply standard telecom rates.</p>
+          </form>
         </div>
       </div>
     </section>
@@ -262,34 +294,52 @@ function BookingSection() {
 }
 
 function SpecialistConsultants() {
-  const doctors = [
-    { initials: "SK", name: "Dr. S. Karunanayake", dept: "Cardiology", quals: "MD, MRCP, DRL, FRCS", slots: "Mon–Fri, 8:00 AM", color: "#2d6a7f" },
-    { initials: "RP", name: "Dr. R. Pathinge", dept: "Pediatrics", quals: "MBChB, DRCPCH, FRCPCH", slots: "Mon–Fri, 10:00 AM", color: "#9333ea" },
-    { initials: "NW", name: "Dr. H. Wickramasinghe", dept: "Neurology", quals: "MD, DM Neurology", slots: "Mon–Fri, 10:00 AM", color: "#065f46" },
-  ];
+  const [activeTab, setActiveTab] = useState("All");
+  const categories = ["All", "Cardiology", "Pediatrics", "Neurology"];
+  
+  const filteredDocs = activeTab === "All" 
+    ? DOCTORS 
+    : DOCTORS.filter(d => d.dept === activeTab);
+
   return (
-    <section className="py-12 px-4 bg-white">
+    <section className="py-16 px-4 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: TEAL_MID }}>Our Team</p>
-            <h2 className="text-2xl font-bold text-gray-900">Specialist Consultants</h2>
-          </div>
-          <a href="#" className="text-sm font-medium flex items-center gap-1" style={{ color: TEAL }}>All doctors <ChevronRight /></a>
-        </div>
+        <SectionHeader 
+          subtitle="Medical Officers Core" 
+          title="Specialist Consultants" 
+          rightContent={
+            <div className="flex flex-wrap gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-200">
+              {categories.map(cat => (
+                <button key={cat} onClick={() => setActiveTab(cat)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === cat ? "bg-white text-teal-950 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          }
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {doctors.map((d) => (
-            <div key={d.name} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: d.color }}>{d.initials}</div>
-                <div>
-                  <p className="font-bold text-gray-800 text-sm">{d.name}</p>
-                  <p className="text-xs text-gray-500">{d.dept}</p>
+          {filteredDocs.map((d) => (
+            <div key={d.name} className="bg-white border border-slate-200/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-sm shadow-inner ${d.bgClass}`}>
+                    {d.initials}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm leading-tight">{d.name}</h4>
+                    <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/40 mt-1">{d.dept}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400 font-medium tracking-wide mb-3">{d.quals}</p>
+                <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5 mb-6 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                  <span className="text-slate-400"><ClockIcon /></span>
+                  <span>{d.slots}</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mb-1">{d.quals}</p>
-              <p className="text-xs text-gray-500 flex items-center gap-1 mb-4"><ClockIcon />{d.slots}</p>
-              <button className="text-xs font-semibold px-4 py-1.5 rounded border transition" style={{ borderColor: TEAL, color: TEAL }}>Book</button>
+              <button className="w-full py-2 rounded-xl text-xs font-bold border border-teal-800 text-teal-800 hover:bg-teal-50 transition-all">
+                Request Profile Channel
+              </button>
             </div>
           ))}
         </div>
@@ -299,49 +349,97 @@ function SpecialistConsultants() {
 }
 
 function AIAssistant() {
+  const [messages, setMessages] = useState([
+    { sender: "bot", text: "Welcome to National Hospital Galle! I can assist you with department directories, appointment workflows, and clinic locations. How can I help you today?" }
+  ]);
   const [input, setInput] = useState("");
-  const suggested = ["How to book an appointment?", "Where is the pharmacy?", "Cardiology clinic schedule", "Visiting hours"];
+  const [isTyping, setIsTyping] = useState(false);
+  
+  const suggested = ["How to book an appointment?", "Where is the pharmacy?", "Cardiology clinic schedule"];
+
+  const triggerBotResponse = (userQuery) => {
+    setIsTyping(true);
+    setTimeout(() => {
+      let botText = "I see your request. For deeper scheduling logs, please dial desk extensions or use the patient portal registries directly.";
+      if (userQuery.toLowerCase().includes("pharmacy")) {
+        botText = "The Main Outpatient Pharmacy station is structured across Block C ground floor. Operating hours run alongside standard OPD channels daily.";
+      } else if (userQuery.toLowerCase().includes("appointment")) {
+        botText = "You can secure standard appointments by tracking target profiles through our core Allocation widget located right above on this page.";
+      }
+      setMessages(prev => [...prev, { sender: "bot", text: botText }]);
+      setIsTyping(false);
+    }, 1000);
+  };
+
+  const handleSend = (text) => {
+    if (!text.trim()) return;
+    setMessages(prev => [...prev, { sender: "user", text }]);
+    setInput("");
+    triggerBotResponse(text);
+  };
 
   return (
-    <section className="py-14 px-4 bg-gray-50">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-center">
-        {/* Left */}
-        <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: TEAL_MID }}>AI Chat Assistant</p>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Get Answers Instantly —<br />In Your Language</h2>
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed max-w-md">Our multilingual AI chat assistant helps you find departments, understand appointment procedures, locate the pharmacy and lab report areas, and answer common questions – in English, Sinhala or Tamil.</p>
+    <section className="py-16 px-4 bg-white">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
+        {/* Left Intro Text Block */}
+        <div className="flex-1 lg:max-w-xl">
+          <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Automated Multi-lingual Router</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">Instant Guidance Support Desk — Available 24/7</h2>
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+            Locate localized laboratories desks, parse processing parameters, check specialized diagnostics schedules instantly without manual registry lookups. Support covers English, Sinhala and Tamil dialects.
+          </p>
           <div className="flex flex-wrap gap-2">
             {suggested.map((s) => (
-              <button key={s} className="text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 hover:border-teal-500 hover:text-teal-700 transition">{s}</button>
+              <button key={s} onClick={() => handleSend(s)} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-300 text-slate-600 bg-white hover:border-teal-600 hover:text-teal-700 hover:shadow-sm transition-all">
+                {s}
+              </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-4 italic">*Chat assistant answers general questions only — no medical diagnosis or treatment advice.</p>
+          <p className="text-[11px] text-slate-400 mt-4 italic">*AI modules provide navigation context only. No diagnostic medical prescriptions advice criteria apply.</p>
         </div>
 
-        {/* Right – Chat Widget */}
-        <div className="w-full lg:w-96 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
-          <div className="px-4 py-3 flex items-center justify-between text-white text-sm font-semibold" style={{ background: TEAL }}>
-            <span>NHG Assistant</span>
-            <span className="flex items-center gap-1 text-xs bg-green-500 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 bg-white rounded-full inline-block" />Online · 3 Languages</span>
-          </div>
-          <div className="p-4 space-y-3 bg-white min-h-48">
-            <div className="text-xs text-gray-500 text-center">Welcome to National Hospital Galle! I can help you with departments, appointments, and services. How can I assist you?</div>
-            <div className="flex justify-end">
-              <div className="bg-teal-600 text-white text-xs px-3 py-2 rounded-xl rounded-br-none max-w-xs">Where is the laboratory report collection area?</div>
+        {/* Right – Chat Widget UI */}
+        <div className="w-full lg:w-[420px] rounded-2xl overflow-hidden shadow-xl border border-slate-200 bg-slate-50 flex flex-col h-[400px]">
+          {/* Header */}
+          <div className="px-4 py-3 flex items-center justify-between text-white bg-slate-950 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wide">NHG Virtual Triaging Agent</span>
             </div>
-            <div className="bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded-xl rounded-bl-none max-w-xs">
-              The laboratory report collection counter is located on the ground floor, Block B, near the main OPD entrance. Open Mon–Sat 7:30 AM – 5:00 PM. You can also collect via the patient portal if your lab staff has uploaded your reports.
-            </div>
+            <span className="text-[10px] font-bold bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700/50">Langs: EN/SI/TA</span>
           </div>
-          <div className="border-t border-gray-200 p-3 flex gap-2 bg-white">
+          
+          {/* Messages Feed */}
+          <div className="flex-1 p-4 space-y-3 overflow-y-auto bg-white">
+            {messages.map((m, idx) => (
+              <div key={idx} className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] text-xs px-3.5 py-2.5 rounded-2xl ${m.sender === "user" ? "bg-teal-700 text-white rounded-br-none" : "bg-slate-100 text-slate-700 rounded-bl-none border border-slate-200/50"}`}>
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-slate-100 border border-slate-200/40 text-[10px] px-3 py-1.5 rounded-xl text-slate-400 font-bold animate-pulse">
+                  Agent scanning logs...
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Controller Input Footer */}
+          <div className="border-t border-slate-200 p-3 flex gap-2 bg-slate-50">
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question..."
-              className="flex-1 text-xs border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSend(input)}
+              placeholder="Type your directory inquiry..."
+              className="flex-1 text-xs border border-slate-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all"
             />
-            <button className="px-3 py-2 rounded-lg text-white text-xs font-semibold transition hover:opacity-90" style={{ background: TEAL }}>Send</button>
+            <button onClick={() => handleSend(input)} className="px-4 py-2 rounded-xl text-white bg-teal-800 text-xs font-bold transition-all hover:bg-teal-900">
+              Send
+            </button>
           </div>
         </div>
       </div>
@@ -350,20 +448,13 @@ function AIAssistant() {
 }
 
 function StatsBar() {
-  const stats = [
-    { num: "1,200+", label: "Hospital Beds" },
-    { num: "40+", label: "Medical Specialties" },
-    { num: "850+", label: "Medical Staff" },
-    { num: "500K+", label: "Patients / Year" },
-    { num: "3", label: "Languages Supported" },
-  ];
   return (
-    <div className="py-10 px-4 text-white" style={{ background: TEAL }}>
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-        {stats.map((s) => (
-          <div key={s.label}>
-            <div className="text-3xl font-black" style={{ color: GOLD }}>{s.num}</div>
-            <div className="text-xs text-white/70 mt-1">{s.label}</div>
+    <div className="py-12 px-4 text-white bg-slate-950 border-y border-slate-800 shadow-inner">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
+        {STATS.map((s) => (
+          <div key={s.label} className="group">
+            <div className="text-3xl lg:text-4xl font-black text-amber-400 tracking-tight transition-transform duration-300 group-hover:scale-105">{s.num}</div>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mt-2">{s.label}</div>
           </div>
         ))}
       </div>
@@ -372,30 +463,33 @@ function StatsBar() {
 }
 
 function NewsSection() {
-  const news = [
-    { tag: "Health Alert", tagColor: "bg-red-100 text-red-700", title: "Dengue Campaign Launched in Southern Province", desc: "Health teams conducting community outreach to prevent dengue spread this season.", date: "May 3, 2026" },
-    { tag: "Facility Improve", tagColor: "bg-blue-100 text-blue-700", title: "New 3T MRI Unit Inaugurated at Radiology Department", desc: "State-of-the-art 3T MRI unit offering specialised, improved diagnostic imaging capacity.", date: "April 28, 2026" },
-    { tag: "Online", tagColor: "bg-green-100 text-green-700", title: "Online Appointment System Now Live for All OPD Departments", desc: "Patients can now book, reschedule or cancel appointments from the hospital website.", date: "April 22, 2026" },
-  ];
   return (
-    <section className="py-12 px-4 bg-white">
+    <section className="py-16 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-gray-400">Latest</p>
-            <h2 className="text-2xl font-bold text-gray-900">News & Announcements</h2>
-          </div>
-          <a href="#" className="text-sm font-medium flex items-center gap-1" style={{ color: TEAL }}>All news <ChevronRight /></a>
-        </div>
+        <SectionHeader 
+          subtitle="Hospital Intelligence" 
+          title="News & Public Announcements" 
+          rightContent={
+            <a href="#" className="text-xs font-bold text-teal-700 hover:text-teal-800 flex items-center gap-1">
+              All board publications <ChevronRight />
+            </a>
+          }
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {news.map((n) => (
-            <div key={n.title} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
-              <div className="bg-gray-100 h-32 flex items-center justify-center text-gray-300 text-4xl">📰</div>
-              <div className="p-5">
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${n.tagColor}`}>{n.tag}</span>
-                <h3 className="font-bold text-gray-800 text-sm mt-2 mb-1">{n.title}</h3>
-                <p className="text-xs text-gray-500 mb-3 leading-relaxed">{n.desc}</p>
-                <p className="text-xs text-gray-400">{n.date}</p>
+          {NEWS.map((n) => (
+            <div key={n.title} className="border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+              <div className="bg-slate-50 border-b border-slate-100 h-36 flex items-center justify-center text-slate-300 text-4xl select-none">
+                📰
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className={`inline-block text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-md border ${n.tagColor}`}>
+                    {n.tag}
+                  </span>
+                  <h3 className="font-extrabold text-slate-900 text-sm mt-3 mb-2 tracking-tight leading-snug">{n.title}</h3>
+                  <p className="text-xs text-slate-500 mb-4 leading-relaxed">{n.desc}</p>
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-2">{n.date}</p>
               </div>
             </div>
           ))}
@@ -407,51 +501,60 @@ function NewsSection() {
 
 function DonateSection() {
   return (
-    <section className="py-10 px-4 bg-gray-100 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+    <section className="py-12 px-4 bg-slate-50 border-t border-slate-200/60">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm">
         <div>
-          <h3 className="font-bold text-gray-900 text-lg mb-1">Support National Hospital Galle</h3>
-          <p className="text-sm text-gray-500 max-w-lg">Your donations help us purchase critical medical equipment, support patient welfare programs, and improve healthcare delivery for patients across Southern Sri Lanka.</p>
+          <h3 className="font-extrabold text-slate-900 text-lg mb-1 tracking-tight">Support National Hospital Galle Philanthropy Foundations</h3>
+          <p className="text-xs text-slate-500 max-w-2xl leading-relaxed">
+            Your generous contributions directly support infrastructure development pipelines, high-precision instrument purchase support programs, and emergency care subsidies supporting economically vulnerable populations.
+          </p>
         </div>
-        <button className="flex-shrink-0 px-6 py-3 rounded-lg text-white font-semibold transition hover:opacity-90" style={{ background: GOLD }}>Donate Now</button>
+        <button className="flex-shrink-0 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 transition-all shadow-md shadow-amber-500/5">
+          Contribute Fundings
+        </button>
       </div>
     </section>
   );
 }
 
 function ContactSection() {
-  const items = [
-    { icon: <MapPinIcon />, label: "Address", value: "Karapitiya, Galle 80000\nSouthern Province, Sri Lanka" },
-    { icon: <PhoneIcon />, label: "Telephone & Emergency", value: "Mon–Fri: 091-222-2241 | Emergency: 1990\nWhatsApp: 071-800-8000" },
-    { icon: <MailIcon />, label: "Email", value: "nhg@health.gov.lk\ndirector@nhgalle.health.gov.lk" },
-    { icon: <ClockIcon />, label: "OPD Hours", value: "Monday – Friday: 8:00 AM – 4:00 PM\nEmergency: Open 24 hours, 7 days" },
+  const contacts = [
+    { icon: <MapPinIcon />, label: "Geographic Complex", value: "Karapitiya, Galle 80000\nSouthern Province, Sri Lanka" },
+    { icon: <PhoneIcon />, label: "Direct Trunks & Central Helpline", value: "Registry Desk: 091-222-2241\nEmergency Service Desk: 1990" },
+    { icon: <MailIcon />, label: "Secure Institutional Mailing", value: "nhg@health.gov.lk\ndirector@nhgalle.health.gov.lk" },
+    { icon: <ClockIcon />, label: "Operational Windows", value: "OPD: Mon–Fri 8:00 AM – 4:00 PM\nCritical Care Trauma: 24H Emergency" },
   ];
+
   return (
-    <section className="py-14 px-4 bg-white">
+    <section className="py-16 px-4 bg-white">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
         <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2 text-gray-400">Contact Us</p>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Find Us & Get in Touch</h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Connect Logs</p>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-8">Locate Outpatient Desks & Connect With Us</h2>
           <div className="space-y-6">
-            {items.map((item) => (
-              <div key={item.label} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: TEAL + "1a", color: TEAL }}>
-                  {item.icon}
+            {contacts.map((c) => (
+              <div key={c.label} className="flex gap-4 items-start">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-100 text-slate-800 border border-slate-200/40">
+                  {c.icon}
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-0.5">{item.label}</p>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">{item.value}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{c.label}</p>
+                  <p className="text-xs md:text-sm font-semibold text-slate-700 whitespace-pre-line leading-relaxed">{c.value}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        {/* Map placeholder */}
-        <div className="flex-1 min-h-64 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+        
+        {/* Map Canvas Frame Area Placeholder */}
+        <div className="flex-1 min-h-[300px] rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shadow-inner p-8">
           <div className="text-center">
-            <MapPinIcon />
-            <p className="text-sm mt-2">Karapitiya, Galle 80000</p>
-            <a href="#" className="text-xs underline mt-1 inline-block" style={{ color: TEAL }}>Get directions →</a>
+            <span className="text-slate-300 flex justify-center scale-150 mb-3"><MapPinIcon /></span>
+            <p className="text-xs font-bold text-slate-800">Galle Karapitiya Medical Hub Complex</p>
+            <p className="text-[11px] text-slate-400 mt-1">Satellite Routing and Street Wayfinding Maps Infrastructure</p>
+            <a href="#" className="text-xs font-bold underline mt-3 inline-block text-teal-700 hover:text-teal-800">
+              Launch Dynamic Nav Routes →
+            </a>
           </div>
         </div>
       </div>
@@ -459,58 +562,24 @@ function ContactSection() {
   );
 }
 
-// function Footer() {
-//   const cols = [
-//     {
-//       title: "Hospital", links: ["Home", "About Us", "History", "Accreditation", "Annual Reports"],
-//     },
-//     {
-//       title: "Services", links: ["OPD Services", "Inpatient Care", "Emergency Services", "Laboratory", "Radiology"],
-//     },
-//     {
-//       title: "Patients", links: ["Book Appointment", "Find a Doctor", "Patient Rights", "Patient Portal", "Feedback"],
-//     },
-//   ];
-//   return (
-//     <footer className="text-white py-12 px-4" style={{ background: TEAL_DARK }}>
-//       <div className="max-w-7xl mx-auto">
-//         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-//           {/* Brand */}
-//           <div>
-//             <div className="font-bold text-lg mb-2">National Hospital Galle</div>
-//             <p className="text-xs text-white/60 leading-relaxed mb-4">Southern Sri Lanka's premiere tertiary care institution, serving the community with compassion since 1949.</p>
-//             <div className="text-xs text-white/40">© 2026 National Hospital Galle · Ministry of Health, Sri Lanka</div>
-//           </div>
-//           {cols.map((col) => (
-//             <div key={col.title}>
-//               <p className="font-semibold text-sm mb-4" style={{ color: GOLD }}>{col.title}</p>
-//               <ul className="space-y-2">
-//                 {col.links.map((link) => (
-//                   <li key={link}><a href="#" className="text-xs text-white/60 hover:text-white transition">{link}</a></li>
-//                 ))}
-//               </ul>
-//             </div>
-//           ))}
-//         </div>
-//         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-white/40">
-//           <span>National Hospital Galle · ISO Accredited · Tertiary Teaching Hospital</span>
-//           <span>Privacy Policy · Terms of Use · Sitemap</span>
-//         </div>
-//       </div>
-//     </footer>
-//   );
-// }
-
-// ── Main Export ───────────────────────────────────────────────────────────────
+// ── Main Page Export Layout Controller ──────────────────────────────────────
 export default function NationalHospitalGalle() {
+  useEffect(() => {
+    // Scroll management layout initialization logic safely hooks here if needed.
+  }, []);
+
   return (
-    <div className="font-sans text-gray-900 min-h-screen">
-    
+    <div className="font-sans bg-slate-50 text-slate-900 min-h-screen antialiased selection:bg-teal-700 selection:text-white">
       <Navbar />
       <HealthAlert />
       <HeroSection />
       <QuickNav />
-      <ClinicQueue />
+      
+      {/* Real-time sync list component provided in module components directory */}
+      <div className="bg-white border-b border-slate-100 py-4 shadow-sm">
+        <ClinicQueue />
+      </div>
+
       <ClinicalSpecialties />
       <BookingSection />
       <SpecialistConsultants />
