@@ -1,200 +1,94 @@
-import React from "react";
 import Navbar from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 
-// ─── Colour tokens ───────────────────────────────────────────────────────────
-const COLORS = {
-  green:      "#2e7d32",
-  teal:       "#00796b",
-  cardBorder: "#e8e8e8",
-  avatarBg: {
-    DR: "#b0bec5",
-    DD: "#c8a96e",
-    RP: "#81c784",
-    NW: "#9575cd",
-    DS: "#64b5f6",
-    SK: "#ffb74d",
-    AP: "#f48fb1",
-    LF: "#80cbc4",
-    IT: "#90a4ae",
-    CN: "#a5d6a7",
-    HM: "#ffcc80",
-    PK: "#80deea",
+const executives = [
+  {
+    initials: "DR",
+    name: "Dr. (Name Withheld)",
+    role: "Director / Medical Superintendent",
+    credentials: "MBBS, MD, FRCP · Ministry of Health appointment",
+    dept: "Overall administration & clinical governance",
+    color: "bg-slate-200 text-slate-700",
   },
-};
+  {
+    initials: "DD",
+    name: "Dr. (Deputy Director)",
+    role: "Deputy Director — Medical Services",
+    credentials: "MBBS, MD · Senior Medical Officer",
+    dept: "Clinical operations and specialist services",
+    color: "bg-amber-200 text-amber-800",
+  },
+];
 
-// ─── Avatar circle ───────────────────────────────────────────────────────────
-function Avatar({ initials }) {
+const clinicalHeads = [
+  { initials: "RP", name: "Dr. R. Pathirage",      role: "Head, Paediatrics",  credentials: "MD, DCH, FRCPCH",       dept: "Paediatrics & Neonatology", color: "bg-green-200 text-green-800" },
+  { initials: "NW", name: "Dr. N. Wickramasinghe", role: "Head, Neurology",    credentials: "MD, DM Neurology",       dept: "Neurology",                 color: "bg-purple-200 text-purple-800" },
+  { initials: "DS", name: "Dr. D. Silva",           role: "Head, Surgery",      credentials: "MBBS, MS, FRCS",         dept: "General Surgery",            color: "bg-blue-200 text-blue-800" },
+  { initials: "SK", name: "Dr. S. Karunanayake",   role: "Head, Cardiology",   credentials: "MD, MRCP (UK), FESC",    dept: "Cardiology & ICU",           color: "bg-orange-200 text-orange-800" },
+  { initials: "AP", name: "Dr. A. Perera",          role: "Head, OBG",          credentials: "MBBS, MD (OBG)",         dept: "Maternity & Gynaecology",    color: "bg-pink-200 text-pink-800" },
+  { initials: "LF", name: "Dr. L. Fernando",        role: "Head, Radiology",    credentials: "MBBS, MD Radiology",     dept: "Radiology & Imaging",        color: "bg-teal-200 text-teal-800" },
+];
+
+const adminLeads = [
+  { initials: "IT", name: "Mr. I. Tissera",      role: "RTI Officer",               credentials: "LLB, Administration",        dept: "Right to information & compliance", color: "bg-slate-200 text-slate-700" },
+  { initials: "CN", name: "Ms. C. Nanayakkara",  role: "Chief Nursing Officer",      credentials: "BSc Nursing, MSc",            dept: "Nursing services & patient care",   color: "bg-green-200 text-green-800" },
+  { initials: "HM", name: "Mr. H. Marasinghe",   role: "Chief Administrative Officer", credentials: "BSc Public Administration, MBA", dept: "Finance, HR & administration",  color: "bg-amber-200 text-amber-800" },
+  { initials: "PK", name: "Mr. P. Kumara",        role: "IT / Systems Manager",       credentials: "BSc Computer Science",        dept: "Digital systems & hospital IT",     color: "bg-cyan-200 text-cyan-800" },
+];
+
+function Avatar({ initials, color }) {
   return (
-    <div
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: "50%",
-        background: COLORS.avatarBg[initials] || "#b0bec5",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 700,
-        fontSize: 14,
-        color: "#fff",
-        flexShrink: 0,
-        letterSpacing: 0.5,
-      }}
-    >
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 ${color}`}>
       {initials}
     </div>
   );
 }
 
-// ─── Executive card (wider, used for top-2 leaders) ──────────────────────────
-function ExecCard({ initials, name, role, roleColor, credentials, dept }) {
+function PersonCard({ person }) {
   return (
-    <div
-      style={{
-        border: `1px solid ${COLORS.cardBorder}`,
-        borderRadius: 10,
-        padding: "20px 22px",
-        flex: "1 1 280px",
-        maxWidth: 380,
-        background: "#fff",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
-        <Avatar initials={initials} />
+    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-2.5 hover:border-gray-300 transition-colors">
+      <div className="flex items-center gap-3">
+        <Avatar initials={person.initials} color={person.color} />
         <div>
-          <div style={{ fontWeight: 700, fontSize: 15, color: "#222" }}>{name}</div>
-          <div style={{ fontSize: 13, color: roleColor, fontWeight: 600 }}>{role}</div>
+          <p className="text-sm font-medium text-gray-900 leading-tight">{person.name}</p>
+          <p className="text-xs text-teal-700 font-medium leading-tight mt-0.5">{person.role}</p>
         </div>
       </div>
-      <div style={{ fontSize: 12.5, color: "#555", marginBottom: 6 }}>{credentials}</div>
-      <div
-        style={{
-          fontSize: 12,
-          color: "#888",
-          background: "#f5f5f5",
-          borderRadius: 6,
-          padding: "4px 8px",
-          display: "inline-block",
-        }}
-      >
-        {dept}
-      </div>
+      <p className="text-xs text-gray-500 leading-relaxed">{person.credentials}</p>
+      <span className="text-[10px] text-gray-400 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 w-fit">
+        {person.dept}
+      </span>
     </div>
   );
 }
 
-// ─── Staff card (department heads & admin) ───────────────────────────────────
-function StaffCard({ initials, name, role, roleColor, credentials, dept }) {
+function SectionLabel({ text }) {
   return (
-    <div
-      style={{
-        border: `1px solid ${COLORS.cardBorder}`,
-        borderRadius: 10,
-        padding: "16px 18px",
-        flex: "1 1 210px",
-        maxWidth: 290,
-        background: "#fff",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <Avatar initials={initials} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: "#222" }}>{name}</div>
-          <div style={{ fontSize: 12.5, color: roleColor, fontWeight: 600 }}>{role}</div>
-        </div>
-      </div>
-      <div style={{ fontSize: 12, color: "#666", marginBottom: 5 }}>{credentials}</div>
-      <div
-        style={{
-          fontSize: 11.5,
-          color: "#999",
-          background: "#f5f5f5",
-          borderRadius: 5,
-          padding: "3px 7px",
-          display: "inline-block",
-        }}
-      >
-        {dept}
-      </div>
-    </div>
-  );
-}
-
-// ─── Section title ───────────────────────────────────────────────────────────
-function SectionTitle({ text }) {
-  return (
-    <h2
-      style={{
-        textAlign: "center",
-        fontSize: 22,
-        fontWeight: 600,
-        color: "#222",
-        margin: "0 0 28px",
-      }}
-    >
+    <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-3">
       {text}
-    </h2>
+    </p>
   );
 }
 
-// ─── Card row wrapper ─────────────────────────────────────────────────────────
-function CardRow({ children, mt = 0 }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        gap: 18,
-        flexWrap: "wrap",
-        justifyContent: "center",
-        marginTop: mt,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ─── Leadership page (body only — drop inside your layout) ───────────────────
 export default function Leadership() {
   return (
-    <div
-      style={{
-        fontFamily: "'Segoe UI', Arial, sans-serif",
-        background: "#fafafa",
-        minHeight: "100vh",
-        padding: "40px 24px 80px",
-      }}
-    >
-      <div style={{ maxWidth: 920, margin: "0 auto" }}>
+    <>
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-5 py-10">
 
-        {/* ── Hero banner ── */}
-        <div
-          style={{
-            border: `1px solid ${COLORS.cardBorder}`,
-            borderRadius: 10,
-            padding: "20px 24px",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 16,
-            marginBottom: 48,
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 8,
-              background: "#e8eaf6",
-              flexShrink: 0,
-            }}
-          />
+        {/* ── Hero ── */}
+        <div className="flex items-start gap-4 bg-gray-50 border border-gray-200 rounded-xl px-6 py-6 mb-6">
+          <div className="w-12 h-12 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0 text-2xl">
+            🏛️
+          </div>
           <div>
-            <h1 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700, color: "#222" }}>
+            <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1">
+              National Hospital Galle
+            </p>
+            <h1 className="text-xl font-semibold text-gray-900 mb-1.5">
               Leadership &amp; Administration
             </h1>
-            <p style={{ margin: 0, fontSize: 13.5, color: "#666", lineHeight: 1.6 }}>
+            <p className="text-sm text-gray-500 leading-relaxed">
               The senior management and clinical leadership team responsible for the governance,
               operations and strategic direction of National Hospital Galle.
             </p>
@@ -202,127 +96,37 @@ export default function Leadership() {
         </div>
 
         {/* ── Executive management ── */}
-        <section style={{ marginBottom: 56 }}>
-          <SectionTitle text="Executive management" />
-          <CardRow>
-            <ExecCard
-              initials="DR"
-              name="Dr. (Name Withheld)"
-              role="Director / Medical Superintendent"
-              roleColor={COLORS.green}
-              credentials="MBBS, MD, FRCP · Ministry of Health appointment"
-              dept="Overall administration & clinical governance"
-            />
-            <ExecCard
-              initials="DD"
-              name="Dr. (Deputy Director)"
-              role="Deputy Director — Medical Services"
-              roleColor={COLORS.teal}
-              credentials="MBBS, MD · Senior Medical Officer"
-              dept="Clinical operations and specialist services"
-            />
-          </CardRow>
+        <section className="mb-8">
+          <SectionLabel text="Executive management" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {executives.map((p) => (
+              <PersonCard key={p.initials} person={p} />
+            ))}
+          </div>
         </section>
 
-        {/* ── Department heads — clinical ── */}
-        <section style={{ marginBottom: 56 }}>
-          <SectionTitle text="Department heads — clinical" />
-          <CardRow>
-            <StaffCard
-              initials="RP"
-              name="Dr. R. Pathirage"
-              role="Head, Paediatrics"
-              roleColor={COLORS.green}
-              credentials="MD, DCH, FRCPCH"
-              dept="Paediatrics & Neonatology"
-            />
-            <StaffCard
-              initials="NW"
-              name="Dr. N. Wickramasinghe"
-              role="Head, Neurology"
-              roleColor={COLORS.teal}
-              credentials="MD, DM Neurology"
-              dept="Neurology"
-            />
-            <StaffCard
-              initials="DS"
-              name="Dr. D. Silva"
-              role="Head, Surgery"
-              roleColor={COLORS.teal}
-              credentials="MBBS, MS, FRCS"
-              dept="General Surgery"
-            />
-          </CardRow>
-          <CardRow mt={18}>
-            <StaffCard
-              initials="SK"
-              name="Dr. S. Karunanayake"
-              role="Head, Cardiology"
-              roleColor={COLORS.teal}
-              credentials="MD, MRCP (UK), FESC"
-              dept="Cardiology & ICU"
-            />
-            <StaffCard
-              initials="AP"
-              name="Dr. A. Perera"
-              role="Head, OBG"
-              roleColor={COLORS.teal}
-              credentials="MBBS, MD (OBG)"
-              dept="Maternity & Gynaecology"
-            />
-            <StaffCard
-              initials="LF"
-              name="Dr. L. Fernando"
-              role="Head, Radiology"
-              roleColor={COLORS.teal}
-              credentials="MBBS, MD Radiology"
-              dept="Radiology & Imaging"
-            />
-          </CardRow>
+        {/* ── Clinical department heads ── */}
+        <section className="mb-8">
+          <SectionLabel text="Department heads — clinical" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {clinicalHeads.map((p) => (
+              <PersonCard key={p.initials} person={p} />
+            ))}
+          </div>
         </section>
 
         {/* ── Administrative & support leads ── */}
         <section>
-          <SectionTitle text="Administrative & support leads" />
-          <CardRow>
-            <StaffCard
-              initials="IT"
-              name="Mr. I. Tissera"
-              role="RTI Officer"
-              roleColor={COLORS.teal}
-              credentials="LLB, Administration"
-              dept="Right to information & compliance"
-            />
-            <StaffCard
-              initials="CN"
-              name="Ms. C. Nanayakkara"
-              role="Chief Nursing Officer"
-              roleColor={COLORS.teal}
-              credentials="BSc Nursing, MSc"
-              dept="Nursing services & patient care"
-            />
-            <StaffCard
-              initials="HM"
-              name="Mr. H. Marasinghe"
-              role="Chief Administrative Officer"
-              roleColor={COLORS.teal}
-              credentials="BSc Public Administration, MBA"
-              dept="Finance, HR & administration"
-            />
-          </CardRow>
-          <CardRow mt={18}>
-            <StaffCard
-              initials="PK"
-              name="Mr. P. Kumara"
-              role="IT / Systems Manager"
-              roleColor={COLORS.teal}
-              credentials="BSc Computer Science"
-              dept="Digital systems & hospital IT"
-            />
-          </CardRow>
+          <SectionLabel text="Administrative & support leads" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {adminLeads.map((p) => (
+              <PersonCard key={p.initials} person={p} />
+            ))}
+          </div>
         </section>
 
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
