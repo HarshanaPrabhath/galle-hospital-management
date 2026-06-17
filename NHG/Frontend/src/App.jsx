@@ -14,6 +14,7 @@ import DoctorsPage from "./Pages/Doctors";
 import DonatePage from "./Pages/Donate";
 import BookAppointmentPage from "./Pages/BookAppoinment";
 import ContactPage from './Pages/Contact';
+import PublicationsPage from './Pages/Publications';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
            <Route path='/Donate' element={<DonatePage/>} />
            <Route path='/services' element={<ServicesPage/>} />
            <Route path='/book-appointment' element={<BookAppointmentPage/>} />
+           <Route path='/publications' element={<PublicationsPage/>} />
            <Route path='/contact' element={<ContactPage/>} />
         </Routes>
       </Router>
