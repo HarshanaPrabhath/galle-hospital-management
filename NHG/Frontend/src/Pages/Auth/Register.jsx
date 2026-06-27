@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Plus, ArrowRight } from 'lucide-react';
 import { registerUser } from '../../Services/authService';
 
 export default function Register() {
@@ -52,27 +53,65 @@ export default function Register() {
     }
   };
 
+  const handleGoogleSignUp = () => {
+    // Hook up to your Google OAuth flow
+    console.log('Continue with Google');
+  };
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="bg-white border border-gray-200 rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-blue-600 mb-6">Register</h2>
-        
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 w-full max-w-md">
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <div className="w-12 h-12 rounded-full bg-[#16243e] flex items-center justify-center">
+            <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
+          </div>
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-center font-serif text-2xl text-[#16243e] mb-1">
+          Create an account
+        </h1>
+        <p className="text-center text-sm text-slate-500 mb-6">
+          Join the NHG Patient Portal to manage your care
+        </p>
+
+        {/* Tabs */}
+        <div className="flex bg-slate-100 rounded-lg p-1 mb-6">
+          <button
+            type="button"
+            className="flex-1 text-center text-sm font-semibold text-[#16243e] bg-white py-2 rounded-md shadow-sm"
+          >
+            Create account
+          </button>
+          <Link
+            to="/signin"
+            className="flex-1 text-center text-sm font-medium text-slate-500 py-2 rounded-md hover:text-slate-700 transition-colors"
+          >
+            Sign in
+          </Link>
+        </div>
+
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded text-sm">
             {error}
           </div>
         )}
-        
+
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded text-sm">
             {success}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
+            <label
+              htmlFor="name"
+              className="block text-xs font-semibold tracking-wide text-[#16243e] mb-1.5"
+            >
+              FULL NAME
             </label>
             <input
               type="text"
@@ -80,44 +119,56 @@ export default function Register() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your full name"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
               disabled={loading}
             />
           </div>
-          
+
+          {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+            <label
+              htmlFor="email"
+              className="block text-xs font-semibold tracking-wide text-[#16243e] mb-1.5"
+            >
+              EMAIL ADDRESS
             </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              placeholder="Enter your email address"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
               disabled={loading}
             />
           </div>
-          
+
+          {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+            <label
+              htmlFor="password"
+              className="block text-xs font-semibold tracking-wide text-[#16243e] mb-1.5"
+            >
+              PASSWORD
             </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              placeholder="Create a password"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
               disabled={loading}
             />
           </div>
-          
+
+          {/* Confirm Password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
+            <label
+              htmlFor="confirmPassword"
+              className="block text-xs font-semibold tracking-wide text-[#16243e] mb-1.5"
+            >
+              CONFIRM PASSWORD
             </label>
             <input
               type="password"
@@ -125,25 +176,55 @@ export default function Register() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
               disabled={loading}
             />
           </div>
-          
+
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 disabled:opacity-50"
+            className="w-full py-3 bg-[#1f6b50] text-white text-sm font-semibold rounded-lg hover:bg-[#1a5c44] transition-colors disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? 'Registering...' : 'Register securely'}
           </button>
         </form>
-        
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <a href="/signin" className="text-blue-600 font-medium hover:underline">
-            Login
-          </a>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-xs text-slate-400">or</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
+        {/* Google sign up */}
+        <button
+          type="button"
+          onClick={handleGoogleSignUp}
+          className="w-full py-3 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Sign up with Google
+        </button>
+
+        {/* Security notice */}
+        <div className="mt-6 p-4 bg-[#f6f1e7] rounded-lg">
+          <p className="text-sm font-semibold text-[#16243e] mb-1">Privacy & Security</p>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Your data is protected under medical privacy laws. By registering, you agree to 
+            the NHG Portal terms of service and identity verification guidelines.
+          </p>
+        </div>
+
+        {/* Footer link */}
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Already registered?{' '}
+          <Link
+            to="/signin"
+            className="text-[#1f6b50] font-medium hover:underline inline-flex items-center gap-1"
+          >
+            Sign in to your account <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </p>
       </div>
     </div>
