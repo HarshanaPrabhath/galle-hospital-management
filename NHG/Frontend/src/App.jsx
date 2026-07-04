@@ -6,8 +6,6 @@ import './App.css'
 import DashboardLayout from "./Layout/DashboardLayout";
 
 import HomePage from "./Pages/home";
-import LoginPage from "./Pages/Auth/Login";
-import RegisterPage from "./Pages/Auth/Register";
 import VisionPage from "./Pages/About/Vision";
 import OverviewPage from "./Pages/About/Overview";
 import HistoryPage from "./Pages/About/History";
@@ -30,11 +28,8 @@ function App() {
     <>
       <Router>
         <Routes>
-
+       
         <Route path="/" element={<HomePage />} />
-        <Route path="/signin" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-
         <Route path="/about/vision-mission" element={<VisionPage />} />
         <Route path="/about/overview" element={<OverviewPage />} />
         <Route path="/about/history" element={<HistoryPage />} />
@@ -46,7 +41,6 @@ function App() {
         <Route path="/book-appointment" element={<BookAppointmentPage />} />
         <Route path="/publications" element={<PublicationsPage />} />
         <Route path="/contact" element={<ContactPage />} />
-
 
         
         <Route path="/dashboard" element={<DashboardLayout />}>
