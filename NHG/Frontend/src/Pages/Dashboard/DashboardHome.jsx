@@ -32,8 +32,8 @@ const CONTENT = {
     description: "Review clinic schedules and patient records for daily care.",
     cards: [
       {
-        title: "Clinics",
-        description: "Check clinic information and availability.",
+        title: "My Clinics",
+        description: "Check clinics assigned to you and their sessions.",
         to: "/dashboard/clinics",
         icon: ClipboardList,
       },

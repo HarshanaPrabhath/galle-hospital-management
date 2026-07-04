@@ -78,7 +78,7 @@ function DashboardLayout() {
           {visibleLinks.map(({ label, to, end, icon: Icon }) => (
             <NavLink key={to} to={to} end={end} className={activeStyle}>
               <Icon size={18} />
-              {label}
+              {role === ROLE.DOCTOR && label === "Clinics" ? "My Clinics" : label}
             </NavLink>
           ))}
         </nav>
