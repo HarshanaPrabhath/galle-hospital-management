@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, ArrowRight } from 'lucide-react';
 import { registerUser } from '../../Services/authService';
 
-export default function Register({ onClose, onSwitchToLogin }) {
+export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,7 +18,6 @@ export default function Register({ onClose, onSwitchToLogin }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -54,11 +52,12 @@ export default function Register({ onClose, onSwitchToLogin }) {
     }
 
     try {
-      const data = await registerUser(formData);
-      setSuccess('Registration successful! Redirecting to login...');
+      await registerUser(formData);
+      setSuccess('Registration successful! Opening login...');
       setTimeout(() => {
-        navigate('/');
-      }, 2000);
+        onRegistrationSuccess?.();
+        onSwitchToLogin?.();
+      }, 900);
     } catch (err) {
       const errorMessage = err.message || 'Registration failed';
       setError(errorMessage);
@@ -259,23 +258,6 @@ export default function Register({ onClose, onSwitchToLogin }) {
             {loading ? 'Registering...' : 'Register securely'}
           </button>
         </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs text-slate-400">or</span>
-          <div className="flex-1 h-px bg-slate-200" />
-        </div>
-
-        {/* Google sign up */}
-        <button
-          type="button"
-          onClick={handleGoogleSignUp}
-          className="w-full py-3 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-        >
-          Sign up with Google
-        </button>
-
         {/* Security notice */}
         <div className="p-4 bg-[#f6f1e7] rounded-lg">
           <p className="text-sm font-semibold text-[#16243e] mb-1">Privacy & Security</p>

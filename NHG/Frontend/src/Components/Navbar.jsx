@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
 import { getAuthData } from "../Utils/auth";
@@ -29,7 +29,6 @@ const NAV_LINKS = [
   { label: "Doctors", to: "/doctors" },
   { label: "Donate", to: "/donate" },
   { label: "Publications", to: "/publications" },
-  { label: "Dashboard", to: "/dashboard", requiresAuth: true },
   { label: "Contact Us", to: "/contact" },
 ];
 
@@ -78,7 +77,8 @@ function DesktopNavItem({ link }) {
   }, [hasDropdown]);
 
   useEffect(() => {
-    setOpen(false);
+    const timer = setTimeout(() => setOpen(false), 0);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   if (hasDropdown) {
@@ -178,11 +178,31 @@ export default function Navbar() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [authData, setAuthData] = useState(getAuthData);
+  const navigate = useNavigate();
 
   const closeDrawer = () => setDrawerOpen(false);
+  const openLoginModal = () => {
+    setAuthMode("login");
+    setLoginOpen(true);
+  };
+
+  const openRegisterModal = () => {
+    setAuthMode("register");
+    setLoginOpen(true);
+  };
+
+  const handlePrimaryAction = () => {
+    if (authData) {
+      navigate("/dashboard");
+      return;
+    }
+
+    openLoginModal();
+  };
 
   useEffect(() => {
-    setDrawerOpen(false);
+    const timer = setTimeout(() => setDrawerOpen(false), 0);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -203,7 +223,8 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setAuthData(getAuthData());
+    const timer = setTimeout(() => setAuthData(getAuthData()), 0);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const currentLang = LANGUAGES.find((l) => l.code === activeLang);
@@ -211,6 +232,8 @@ export default function Navbar() {
     (link) => !link.requiresAuth || Boolean(authData)
   );
   const otherLangs = LANGUAGES.filter((l) => l.code !== activeLang);
+  const primaryActionLabel = authData ? "Dashboard Access" : "Book Appointment";
+  const compactPrimaryActionLabel = authData ? "Dashboard" : "Book";
 
   return (
     <>
@@ -261,45 +284,53 @@ export default function Navbar() {
             </div>
 
             {/* MODAL LOGIN */}
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
-            >
-              Login / Register
-            </button>
+            {!authData && (
+              <button
+                onClick={openLoginModal}
+                className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
+              >
+                Login / Register
+              </button>
+            )}
 
-            <Link
-              to="/book-appointment"
+            <button
+              type="button"
+              onClick={handlePrimaryAction}
               className="px-4 py-2 rounded-lg text-white text-sm font-bold"
               style={{ background: GOLD }}
             >
-              Book Appointment
-            </Link>
+              {primaryActionLabel}
+            </button>
           </div>
 
           {/* Tablet */}
           <div className="hidden lg:flex xl:hidden items-center gap-2 ml-auto">
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
-            >
-              Login
-            </button>
+            {!authData && (
+              <>
+                <button
+                  onClick={openLoginModal}
+                  className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={openRegisterModal}
+                  className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
+                >
+                  Register
+                </button>
+              </>
+            )}
 
             <button
-              onClick={() => setLoginOpen(true)}
-              className="px-3 py-1.5 border border-white/30 rounded-lg text-white text-sm"
-            >
-              Register
-            </button>
-
-            <Link
-              to="/book-appointment"
+              type="button"
+              onClick={handlePrimaryAction}
               className="px-3 py-1.5 rounded-lg text-white text-xs font-bold"
               style={{ background: GOLD }}
             >
-              Book
-            </Link>
+              {compactPrimaryActionLabel}
+            </button>
 
             <button
               onClick={() => setDrawerOpen(true)}
@@ -311,13 +342,14 @@ export default function Navbar() {
 
           {/* Mobile */}
           <div className="flex lg:hidden items-center gap-2 ml-auto">
-            <Link
-              to="/book-appointment"
+            <button
+              type="button"
+              onClick={handlePrimaryAction}
               className="px-3 py-1.5 rounded-lg text-white text-xs font-bold"
               style={{ background: GOLD }}
             >
-              Book
-            </Link>
+              {compactPrimaryActionLabel}
+            </button>
 
             <button
               onClick={() => setDrawerOpen(true)}
@@ -352,22 +384,21 @@ export default function Navbar() {
             />
           ))}
 
-          <button
-            onClick={() => {
-              setAuthMode("login");
-              setLoginOpen(true);
-            }}
-            className="mt-4 w-full border border-white/30 py-2 rounded-lg"
-          >
-            Login / Register
-          </button>
+          {!authData && (
+            <button
+              onClick={openLoginModal}
+              className="mt-4 w-full border border-white/30 py-2 rounded-lg"
+            >
+              Login / Register
+            </button>
+          )}
         </div>
       </aside>
 
       {/* LOGIN MODAL */}
       {loginOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-2 sm:p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4"
           onClick={() => setLoginOpen(false)}
         >
           <div className="max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -375,6 +406,7 @@ export default function Navbar() {
               <Register
                 onClose={() => setLoginOpen(false)}
                 onSwitchToLogin={() => setAuthMode("login")}
+                onRegistrationSuccess={() => setAuthMode("login")}
               />
             ) : (
               <Login
