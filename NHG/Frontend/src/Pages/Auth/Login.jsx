@@ -6,7 +6,6 @@ import { loginUser } from "../../Services/authService";
 export default function Login({ onClose, onSwitchToRegister }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -39,10 +38,6 @@ export default function Login({ onClose, onSwitchToRegister }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    console.log("Continue with Google");
   };
 
   return (
