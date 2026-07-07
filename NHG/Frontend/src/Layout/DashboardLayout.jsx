@@ -16,7 +16,7 @@ const DASHBOARD_LINKS = [
     to: "/dashboard",
     end: true,
     icon: LayoutDashboard,
-    roles: [ROLE.ADMIN, ROLE.DOCTOR, ROLE.PATIENT],
+    roles: [ROLE.ADMIN, ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.LAB, ROLE.PATIENT],
   },
   {
     label: "Doctors",
@@ -28,7 +28,7 @@ const DASHBOARD_LINKS = [
     label: "Clinics",
     to: "/dashboard/clinics",
     icon: Building2,
-    roles: [ROLE.ADMIN, ROLE.DOCTOR],
+    roles: [ROLE.ADMIN, ROLE.CONSULTANT, ROLE.DOCTOR],
   },
   {
     label: "Patients",
@@ -40,13 +40,15 @@ const DASHBOARD_LINKS = [
     label: "Labs",
     to: "/dashboard/labs",
     icon: Microscope,
-    roles: [ROLE.ADMIN, ROLE.PATIENT],
+    roles: [ROLE.ADMIN, ROLE.LAB, ROLE.PATIENT],
   },
 ];
 
 const ROLE_LABELS = {
   [ROLE.ADMIN]: "Admin Management",
+  [ROLE.CONSULTANT]: "Consultant Workspace",
   [ROLE.DOCTOR]: "Doctor Workspace",
+  [ROLE.LAB]: "Lab Workspace",
   [ROLE.PATIENT]: "Patient Portal",
 };
 

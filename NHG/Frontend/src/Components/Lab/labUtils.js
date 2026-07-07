@@ -19,6 +19,7 @@ export const asArray = (data) => {
   if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.labs)) return data.labs;
   if (Array.isArray(data?.content)) return data.content;
+  if (Array.isArray(data?.reports)) return data.reports;
   return [];
 };
 

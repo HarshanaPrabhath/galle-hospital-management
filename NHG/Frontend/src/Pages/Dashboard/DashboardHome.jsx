@@ -51,6 +51,30 @@ const CONTENT = {
       },
     ],
   },
+  [ROLE.CONSULTANT]: {
+    title: "Consultant Dashboard",
+    description: "Create and manage clinic sessions for hospital clinics.",
+    cards: [
+      {
+        title: "Clinic Sessions",
+        description: "Add clinic sessions with date, time, location, and patient capacity.",
+        to: "/dashboard/clinics",
+        icon: ClipboardList,
+      },
+    ],
+  },
+  [ROLE.LAB]: {
+    title: "Lab Dashboard",
+    description: "Manage laboratory tests and diagnostic workflows.",
+    cards: [
+      {
+        title: "Labs",
+        description: "Create, update, and manage laboratory test records.",
+        to: "/dashboard/labs",
+        icon: Microscope,
+      },
+    ],
+  },
   [ROLE.PATIENT]: {
     title: "Patient Dashboard",
     description: "Welcome to your NHG patient portal.",

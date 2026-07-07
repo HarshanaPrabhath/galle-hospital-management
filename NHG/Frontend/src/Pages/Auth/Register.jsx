@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Plus, ArrowRight, X } from 'lucide-react';
-import { registerUser } from '../../Services/authService';
+import { registerLabUser, registerUser } from '../../Services/authService';
 
 export default function Register({ onClose, onSwitchToLogin, onRegistrationSuccess }) {
+  const [accountType, setAccountType] = useState('patient');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,7 +53,11 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
     }
 
     try {
-      await registerUser(formData);
+      if (accountType === 'lab') {
+        await registerLabUser(formData);
+      } else {
+        await registerUser(formData);
+      }
       setSuccess('Registration successful! Opening login...');
       setTimeout(() => {
         onRegistrationSuccess?.();
@@ -95,7 +100,9 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
         Create an account
       </h1>
       <p className="text-center text-sm text-slate-500 mb-4 flex-shrink-0">
-        Join the NHG Patient Portal to manage your care
+        {accountType === 'lab'
+          ? 'Register lab staff access for NHG laboratory workflows'
+          : 'Join the NHG Patient Portal to manage your care'}
       </p>
 
       {/* Tabs */}
@@ -112,6 +119,31 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
           className="flex-1 text-center text-sm font-medium text-slate-500 py-2 rounded-md hover:text-slate-700 transition-colors"
         >
           Sign in
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1 mb-4 flex-shrink-0">
+        <button
+          type="button"
+          onClick={() => setAccountType('patient')}
+          className={`rounded-md py-2 text-sm font-semibold transition ${
+            accountType === 'patient'
+              ? 'bg-white text-[#16243e] shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Patient
+        </button>
+        <button
+          type="button"
+          onClick={() => setAccountType('lab')}
+          className={`rounded-md py-2 text-sm font-semibold transition ${
+            accountType === 'lab'
+              ? 'bg-white text-[#16243e] shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Lab Staff
         </button>
       </div>
 
@@ -139,7 +171,7 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
                 id="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                placeholder="Kamal"
+                placeholder={accountType === 'lab' ? 'Lab' : 'Kamal'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -151,7 +183,7 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
                 id="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                placeholder="Perera"
+                placeholder={accountType === 'lab' ? 'Technician' : 'Perera'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -206,7 +238,7 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="kamal@example.com"
+                placeholder={accountType === 'lab' ? 'lab@example.com' : 'kamal@example.com'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -261,7 +293,11 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
             className="w-full py-3 bg-[#1f6b50] text-white text-sm font-semibold rounded-lg hover:bg-[#1a5c44] transition-colors disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Registering...' : 'Register securely'}
+            {loading
+              ? 'Registering...'
+              : accountType === 'lab'
+                ? 'Register lab user'
+                : 'Register securely'}
           </button>
         </form>
         {/* Security notice */}

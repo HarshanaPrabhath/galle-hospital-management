@@ -3,6 +3,9 @@ import ClinicQueue from "../Components/Home/ClinicQueue";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";  
 import { useNavigate } from "react-router-dom";
+import Login from "./Auth/Login";
+import Register from "./Auth/Register";
+import { getAuthData } from "../Utils/auth";
 
 // ── Icons (Inline SVG Helpers for strict performance) ──────────────────────
 const Icon = ({ d, size = 16, className = "" }) => (
@@ -86,8 +89,28 @@ function HealthAlert() {
   );
 }
 
-function HeroSection() {
-  const navigate = useNavigate();
+function AuthModal({ authMode, onClose, onSwitchMode }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4">
+      <div className="max-h-[90vh] overflow-y-auto">
+        {authMode === "register" ? (
+          <Register
+            onClose={onClose}
+            onSwitchToLogin={() => onSwitchMode("login")}
+            onRegistrationSuccess={() => onSwitchMode("login")}
+          />
+        ) : (
+          <Login
+            onClose={onClose}
+            onSwitchToRegister={() => onSwitchMode("register")}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HeroSection({ onBookAppointment }) {
   return (
     <section className="py-16 px-4 bg-gradient-to-br from-slate-900 via-teal-950 to-slate-950 border-b border-slate-800">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
@@ -105,9 +128,11 @@ function HeroSection() {
             National Hospital Galle is the premier tertiary-care institution serving the Southern Province – built with over 1,200 beds, 40+ specialties, automated clinic lines, and multi-language support.
           </p>
           <div className="flex flex-wrap justify-center lg:justify-start gap-3">
-            <button    onClick={() => navigate("/book-appointment")} 
-            className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-98 shadow-md shadow-amber-500/10 transition-all">
-             
+            <button
+              type="button"
+              onClick={onBookAppointment}
+              className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-98 shadow-md shadow-amber-500/10 transition-all"
+            >
               Book Appointment
             </button>
 
@@ -151,7 +176,7 @@ function HeroSection() {
   );
 }
 
-function QuickNav() {
+function QuickNav({ onBookAppointment }) {
   const items = [
     { icon: "📅", label: "Book Appointment", sub: "Online scheduling" },
     { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Profiles & specialties" },
@@ -163,7 +188,12 @@ function QuickNav() {
     <div className="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 flex overflow-x-auto scrollbar-hide divide-x divide-slate-100">
         {items.map((item) => (
-          <button key={item.label} className="flex-1 min-w-[140px] md:min-w-max flex flex-col items-center text-center py-4 px-5 hover:bg-slate-50 transition-all group">
+          <button
+            key={item.label}
+            type="button"
+            onClick={item.label === "Book Appointment" ? onBookAppointment : undefined}
+            className="flex-1 min-w-[140px] md:min-w-max flex flex-col items-center text-center py-4 px-5 hover:bg-slate-50 transition-all group"
+          >
             <span className="text-xl mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
             <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700 transition-colors whitespace-nowrap">{item.label}</span>
             <span className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">{item.sub}</span>
@@ -564,16 +594,48 @@ function ContactSection() {
 
 // ── Main Page Export Layout Controller ──────────────────────────────────────
 export default function NationalHospitalGalle() {
+  const navigate = useNavigate();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [authData, setAuthData] = useState(getAuthData);
+
+  const openLoginModal = () => {
+    setAuthMode("login");
+    setLoginOpen(true);
+  };
+
+  const handleBookAppointment = () => {
+    const currentAuthData = getAuthData();
+    setAuthData(currentAuthData);
+
+    if (currentAuthData) {
+      navigate("/book-appointment");
+      return;
+    }
+
+    openLoginModal();
+  };
+
   useEffect(() => {
     // Scroll management layout initialization logic safely hooks here if needed.
+  }, []);
+
+  useEffect(() => {
+    const syncAuth = () => setAuthData(getAuthData());
+    window.addEventListener("storage", syncAuth);
+    window.addEventListener("authDataChanged", syncAuth);
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("authDataChanged", syncAuth);
+    };
   }, []);
 
   return (
     <div className="font-sans bg-slate-50 text-slate-900 min-h-screen antialiased selection:bg-teal-700 selection:text-white">
       <Navbar />
       <HealthAlert />
-      <HeroSection />
-      <QuickNav />
+      <HeroSection onBookAppointment={handleBookAppointment} />
+      <QuickNav onBookAppointment={handleBookAppointment} />
       
       {/* Real-time sync list component provided in module components directory */}
       <div className="bg-white border-b border-slate-100 py-4 shadow-sm">
@@ -589,6 +651,13 @@ export default function NationalHospitalGalle() {
       <DonateSection />
       <ContactSection />
       <Footer />
+      {loginOpen && !authData && (
+        <AuthModal
+          authMode={authMode}
+          onClose={() => setLoginOpen(false)}
+          onSwitchMode={setAuthMode}
+        />
+      )}
     </div>
   );
 }
