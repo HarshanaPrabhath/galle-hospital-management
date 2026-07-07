@@ -22,6 +22,31 @@ export const registerUser = async (patientData) => {
 };
 
 
+// Request password reset token
+export const forgotPassword = async (email) => {
+  try {
+    const response = await apiClient.post('/auth/forgot-password', { email });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to send reset email' };
+  }
+};
+
+// Reset password with token from email
+export const resetPassword = async ({ token, newPassword, confirmPassword }) => {
+  try {
+    const response = await apiClient.post('/auth/reset-password', {
+      token,
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to reset password' };
+  }
+};
+
+
 // Logout user
 export const logoutUser = async () => {
   try {

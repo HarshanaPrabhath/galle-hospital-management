@@ -3,6 +3,7 @@ import {
   Home,
   LayoutDashboard,
   LogOut,
+  Microscope,
   Stethoscope,
   Users,
 } from "lucide-react";
@@ -34,6 +35,12 @@ const DASHBOARD_LINKS = [
     to: "/dashboard/patients",
     icon: Users,
     roles: [ROLE.ADMIN, ROLE.DOCTOR],
+  },
+  {
+    label: "Labs",
+    to: "/dashboard/labs",
+    icon: Microscope,
+    roles: [ROLE.ADMIN, ROLE.PATIENT],
   },
 ];
 

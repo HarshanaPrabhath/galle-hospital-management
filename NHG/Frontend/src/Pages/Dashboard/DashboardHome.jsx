@@ -1,4 +1,4 @@
-import { CalendarPlus, ClipboardList, Stethoscope, UserRound, Users } from "lucide-react";
+import { CalendarPlus, ClipboardList, Microscope, Stethoscope, UserRound, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getAuthData, ROLE } from "../../Utils/auth";
 
@@ -24,6 +24,12 @@ const CONTENT = {
         description: "View and manage registered patient records.",
         to: "/dashboard/patients",
         icon: Users,
+      },
+      {
+        title: "Labs",
+        description: "Manage laboratory requests and diagnostic workflows.",
+        to: "/dashboard/labs",
+        icon: Microscope,
       },
     ],
   },
@@ -54,6 +60,12 @@ const CONTENT = {
         description: "Request an appointment with hospital services.",
         to: "/book-appointment",
         icon: CalendarPlus,
+      },
+      {
+        title: "Labs",
+        description: "Upload lab reports and keep your diagnostic information together.",
+        to: "/dashboard/labs",
+        icon: Microscope,
       },
       {
         title: "My Profile",

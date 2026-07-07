@@ -399,9 +399,8 @@ export default function Navbar() {
       {loginOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4"
-          onClick={() => setLoginOpen(false)}
         >
-          <div className="max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="max-h-[90vh] overflow-y-auto">
             {authMode === "register" ? (
               <Register
                 onClose={() => setLoginOpen(false)}

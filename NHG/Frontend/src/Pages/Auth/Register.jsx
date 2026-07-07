@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Plus, ArrowRight } from 'lucide-react';
+import { Plus, ArrowRight, X } from 'lucide-react';
 import { registerUser } from '../../Services/authService';
 
-export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
+export default function Register({ onClose, onSwitchToLogin, onRegistrationSuccess }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -67,16 +67,22 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log('Continue with Google');
-  };
-
   return (
     /* Removed the outer full-page div wrapper. 
       The main card is now the root component. Added 'max-h-full' and 'overflow-hidden' 
       to make sure this component fits comfortably inside whatever modal or grid container you place it in.
     */
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 w-full max-w-lg h-full max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="relative bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 w-full max-w-lg h-full max-h-[90vh] flex flex-col overflow-hidden">
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700 transition"
+          aria-label="Close registration modal"
+        >
+          <X size={22} />
+        </button>
+      )}
       
       {/* Header Section (Kept static so users always know where they are) */}
       <div className="flex justify-center mb-4 flex-shrink-0">
