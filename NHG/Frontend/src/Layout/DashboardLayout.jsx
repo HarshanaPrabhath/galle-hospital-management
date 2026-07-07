@@ -64,8 +64,8 @@ function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-[#F4F7F6]">
-      <aside className="w-64 bg-[#002325] text-white flex flex-col p-6 shadow-xl border-r border-[#003336]">
-        <div className="mb-10 pb-4 border-b border-[#00383B]">
+      <aside className="sticky top-0 h-screen w-64 bg-[#002325] text-white flex flex-col p-6 shadow-xl border-r border-[#003336]">
+        <div className="mb-10 pb-4 border-b border-[#00383B] flex-shrink-0">
           <h2 className="text-xl font-extrabold tracking-wide text-white uppercase">
             NHG <span className="text-[#FFB703]">Galle</span>
           </h2>
@@ -74,7 +74,7 @@ function DashboardLayout() {
           </p>
         </div>
 
-        <nav className="flex flex-col gap-2 flex-1">
+        <nav className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1">
           {visibleLinks.map(({ label, to, end, icon: Icon }) => (
             <NavLink key={to} to={to} end={end} className={activeStyle}>
               <Icon size={18} />
@@ -83,22 +83,24 @@ function DashboardLayout() {
           ))}
         </nav>
 
-        <button
-          onClick={() => navigate("/")}
-          className="mt-auto border-2 border-[#FFB703] text-[#FFB703] hover:bg-[#FFB703] hover:text-[#001D1F] font-semibold p-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-        >
-          <Home size={18} /> Go to Website
-        </button>
+        <div className="flex-shrink-0 pt-4">
+          <button
+            onClick={() => navigate("/")}
+            className="w-full border-2 border-[#FFB703] text-[#FFB703] hover:bg-[#FFB703] hover:text-[#001D1F] font-semibold p-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <Home size={18} /> Go to Website
+          </button>
 
-        <button
-          onClick={handleLogout}
-          className="mt-3 border border-white/20 text-gray-300 hover:bg-white/10 hover:text-white font-semibold p-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-        >
-          <LogOut size={18} /> Logout
-        </button>
+          <button
+            onClick={handleLogout}
+            className="mt-3 w-full border border-white/20 text-gray-300 hover:bg-white/10 hover:text-white font-semibold p-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
       </aside>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col">
         <header className="h-20 bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-8">
           <h1 className="text-xl font-bold text-[#002325]">
             {ROLE_LABELS[role] || "Hospital Dashboard"}

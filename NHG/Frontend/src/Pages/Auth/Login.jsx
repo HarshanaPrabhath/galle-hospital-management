@@ -132,18 +132,8 @@ export default function Login({ onClose, onSwitchToRegister }) {
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e] outline-none"
             />
           </div>
-
           {/* Remember */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-slate-600">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              Remember me
-            </label>
-
+          <div className="flex w-full justify-end text-sm">
             <Link
               to="/forgot-password"
               onClick={() => onClose?.()}
@@ -162,23 +152,6 @@ export default function Login({ onClose, onSwitchToRegister }) {
             {loading ? "Signing in..." : "Sign in securely"}
           </button>
         </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-slate-200"></div>
-          <span className="text-xs text-slate-400">or</span>
-          <div className="flex-1 h-px bg-slate-200"></div>
-        </div>
-
-        {/* Google */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="w-full py-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
-        >
-          Continue with Google
-        </button>
-
         {/* Notice */}
         <div className="mt-6 bg-[#f6f1e7] rounded-lg p-4">
           <p className="font-semibold text-[#16243e] mb-1">

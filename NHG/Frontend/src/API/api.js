@@ -11,6 +11,4 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Add a request interceptor to include the JWT token in the Authorization header
-
 export default apiClient;
