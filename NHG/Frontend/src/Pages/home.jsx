@@ -211,11 +211,6 @@ function ClinicalSpecialties() {
         <SectionHeader 
           subtitle="Departments & Services" 
           title="Clinical Specialties" 
-          rightContent={
-            <a href="#" className="text-xs font-bold text-teal-700 hover:text-teal-800 flex items-center gap-1 group">
-              View all 40+ departments <span className="group-hover:translate-x-1 transition-transform"><ChevronRight /></span>
-            </a>
-          }
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SPECIALTIES.map((s) => (
@@ -223,9 +218,6 @@ function ClinicalSpecialties() {
               <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">{s.icon}</div>
               <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700 transition-colors">{s.name}</h3>
               <p className="text-xs text-slate-500 mb-5 leading-relaxed">{s.desc}</p>
-              <a href="#" className="text-xs font-bold text-slate-600 hover:text-teal-700 flex items-center gap-1">
-                View Department Details <ChevronRight />
-              </a>
             </div>
           ))}
         </div>

@@ -86,10 +86,16 @@ const CONTENT = {
         icon: CalendarPlus,
       },
       {
-        title: "Labs",
-        description: "Upload lab reports and keep your diagnostic information together.",
+        title: "Submit Lab Report",
+        description: "Upload your lab report and review submitted diagnostic documents.",
         to: "/dashboard/labs",
         icon: Microscope,
+      },
+      {
+        title: "Clinics & Sessions",
+        description: "Watch available clinic details and scheduled sessions.",
+        to: "/dashboard/clinics",
+        icon: ClipboardList,
       },
       {
         title: "My Profile",

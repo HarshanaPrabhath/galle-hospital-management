@@ -33,7 +33,10 @@ export default function ClinicPage() {
   const authData = getAuthData();
   const canManageClinics = authData?.role === ROLE.ADMIN;
   const canManageSessions = authData?.role === ROLE.CONSULTANT;
-  const canViewAllClinics = canManageClinics || authData?.role === ROLE.CONSULTANT;
+  const canViewAllClinics =
+    canManageClinics ||
+    authData?.role === ROLE.CONSULTANT ||
+    authData?.role === ROLE.PATIENT;
   const [activeTab, setActiveTab] = useState("clinics");
   const [clinics, setClinics] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -270,9 +273,13 @@ export default function ClinicPage() {
     ? "Clinics"
     : authData?.role === ROLE.CONSULTANT
       ? "Clinic Sessions"
-      : "My Clinics";
+      : authData?.role === ROLE.PATIENT
+        ? "Clinics & Sessions"
+        : "My Clinics";
   const subtitle = canViewAllClinics
-    ? `${clinics.length} clinics, ${sessions.length} sessions`
+    ? authData?.role === ROLE.PATIENT
+      ? `${clinics.length} clinics, ${sessions.length} sessions available to watch`
+      : `${clinics.length} clinics, ${sessions.length} sessions`
     : `${visibleClinics.length} assigned clinics, ${visibleSessions.length} sessions`;
 
   return (

@@ -28,7 +28,7 @@ const DASHBOARD_LINKS = [
     label: "Clinics",
     to: "/dashboard/clinics",
     icon: Building2,
-    roles: [ROLE.ADMIN, ROLE.CONSULTANT, ROLE.DOCTOR],
+    roles: [ROLE.ADMIN, ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.PATIENT],
   },
   {
     label: "Patients",
@@ -87,7 +87,13 @@ function DashboardLayout() {
           {visibleLinks.map(({ label, to, end, icon: Icon }) => (
             <NavLink key={to} to={to} end={end} className={activeStyle}>
               <Icon size={18} />
-              {role === ROLE.DOCTOR && label === "Clinics" ? "My Clinics" : label}
+              {role === ROLE.DOCTOR && label === "Clinics"
+                ? "My Clinics"
+                : role === ROLE.PATIENT && label === "Clinics"
+                  ? "Clinics & Sessions"
+                  : role === ROLE.PATIENT && label === "Labs"
+                    ? "Submit Lab Report"
+                    : label}
             </NavLink>
           ))}
         </nav>
