@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Plus, ArrowRight } from 'lucide-react';
-import { registerUser } from '../../Services/authService';
+import { Plus, ArrowRight, X } from 'lucide-react';
+import { registerLabUser, registerUser } from '../../Services/authService';
 
-export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
+export default function Register({ onClose, onSwitchToLogin, onRegistrationSuccess }) {
+  const [accountType, setAccountType] = useState('patient');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,7 +53,11 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
     }
 
     try {
-      await registerUser(formData);
+      if (accountType === 'lab') {
+        await registerLabUser(formData);
+      } else {
+        await registerUser(formData);
+      }
       setSuccess('Registration successful! Opening login...');
       setTimeout(() => {
         onRegistrationSuccess?.();
@@ -67,16 +72,22 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log('Continue with Google');
-  };
-
   return (
     /* Removed the outer full-page div wrapper. 
       The main card is now the root component. Added 'max-h-full' and 'overflow-hidden' 
       to make sure this component fits comfortably inside whatever modal or grid container you place it in.
     */
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 w-full max-w-lg h-full max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="relative bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 w-full max-w-lg h-full max-h-[90vh] flex flex-col overflow-hidden">
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700 transition"
+          aria-label="Close registration modal"
+        >
+          <X size={22} />
+        </button>
+      )}
       
       {/* Header Section (Kept static so users always know where they are) */}
       <div className="flex justify-center mb-4 flex-shrink-0">
@@ -89,26 +100,11 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
         Create an account
       </h1>
       <p className="text-center text-sm text-slate-500 mb-4 flex-shrink-0">
-        Join the NHG Patient Portal to manage your care
+        {accountType === 'lab'
+          ? 'Register lab staff access for NHG laboratory workflows'
+          : 'Join the NHG Patient Portal to manage your care'}
       </p>
-
-      {/* Tabs */}
-      <div className="flex bg-slate-100 rounded-lg p-1 mb-4 flex-shrink-0">
-        <button
-          type="button"
-          className="flex-1 text-center text-sm font-semibold text-[#16243e] bg-white py-2 rounded-md shadow-sm"
-        >
-          Create account
-        </button>
-        <button
-          type="button"
-          onClick={onSwitchToLogin}
-          className="flex-1 text-center text-sm font-medium text-slate-500 py-2 rounded-md hover:text-slate-700 transition-colors"
-        >
-          Sign in
-        </button>
-      </div>
-
+      
       {/* Scrollable Form Body (All scrolling is fully restricted inside here) */}
       <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
         {error && (
@@ -133,7 +129,7 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
                 id="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                placeholder="Kamal"
+                placeholder={accountType === 'lab' ? 'Lab' : 'Kamal'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -145,7 +141,7 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
                 id="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                placeholder="Perera"
+                placeholder={accountType === 'lab' ? 'Technician' : 'Perera'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -200,7 +196,7 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="kamal@example.com"
+                placeholder={accountType === 'lab' ? 'lab@example.com' : 'kamal@example.com'}
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#16243e]/20 focus:border-[#16243e]"
                 disabled={loading}
               />
@@ -255,7 +251,11 @@ export default function Register({ onSwitchToLogin, onRegistrationSuccess }) {
             className="w-full py-3 bg-[#1f6b50] text-white text-sm font-semibold rounded-lg hover:bg-[#1a5c44] transition-colors disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Registering...' : 'Register securely'}
+            {loading
+              ? 'Registering...'
+              : accountType === 'lab'
+                ? 'Register lab user'
+                : 'Register securely'}
           </button>
         </form>
         {/* Security notice */}

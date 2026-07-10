@@ -1,4 +1,4 @@
-import { CalendarPlus, ClipboardList, Stethoscope, UserRound, Users } from "lucide-react";
+import { CalendarPlus, ClipboardList, Microscope, Stethoscope, UserRound, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getAuthData, ROLE } from "../../Utils/auth";
 
@@ -25,6 +25,12 @@ const CONTENT = {
         to: "/dashboard/patients",
         icon: Users,
       },
+      {
+        title: "Labs",
+        description: "Manage laboratory requests and diagnostic workflows.",
+        to: "/dashboard/labs",
+        icon: Microscope,
+      },
     ],
   },
   [ROLE.DOCTOR]: {
@@ -45,6 +51,30 @@ const CONTENT = {
       },
     ],
   },
+  [ROLE.CONSULTANT]: {
+    title: "Consultant Dashboard",
+    description: "Create and manage clinic sessions for hospital clinics.",
+    cards: [
+      {
+        title: "Clinic Sessions",
+        description: "Add clinic sessions with date, time, location, and patient capacity.",
+        to: "/dashboard/clinics",
+        icon: ClipboardList,
+      },
+    ],
+  },
+  [ROLE.LAB]: {
+    title: "Lab Dashboard",
+    description: "Manage laboratory tests and diagnostic workflows.",
+    cards: [
+      {
+        title: "Labs",
+        description: "Create, update, and manage laboratory test records.",
+        to: "/dashboard/labs",
+        icon: Microscope,
+      },
+    ],
+  },
   [ROLE.PATIENT]: {
     title: "Patient Dashboard",
     description: "Welcome to your NHG patient portal.",
@@ -54,6 +84,18 @@ const CONTENT = {
         description: "Request an appointment with hospital services.",
         to: "/book-appointment",
         icon: CalendarPlus,
+      },
+      {
+        title: "Submit Lab Report",
+        description: "Upload your lab report and review submitted diagnostic documents.",
+        to: "/dashboard/labs",
+        icon: Microscope,
+      },
+      {
+        title: "Clinics & Sessions",
+        description: "Watch available clinic details and scheduled sessions.",
+        to: "/dashboard/clinics",
+        icon: ClipboardList,
       },
       {
         title: "My Profile",
