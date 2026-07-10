@@ -16,11 +16,13 @@ import DonatePage from "./Pages/Donate";
 import BookAppointmentPage from "./Pages/BookAppoinment";
 import ContactPage from './Pages/Contact';
 import PublicationsPage from './Pages/Publications';
+import ForgotPasswordPage from './Pages/Auth/ForgotPassword';
 
 import DashboardHome from './Pages/Dashboard/DashboardHome';
 import DoctorPage from './Pages/Dashboard/DoctorPage';
 import ClinicPage from './Pages/Dashboard/ClinicPage';
 import PatientPage from './Pages/Dashboard/PatientPage';
+import LabPage from './Pages/Dashboard/LabPage';
 import { getAuthData, hasRole, ROLE } from './Utils/auth';
 
 function ProtectedDashboard() {
@@ -64,6 +66,7 @@ function App() {
         <Route path="/doctors" element={<DoctorsPage />} />
         <Route path="/donate" element={<DonatePage />} />
         <Route path="/book-appointment" element={<BookAppointmentPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/publications" element={<PublicationsPage />} />
         <Route path="/contact" element={<ContactPage />} />
 
@@ -81,7 +84,7 @@ function App() {
           <Route
             path="clinics"
             element={
-              <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.DOCTOR]}>
+              <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.PATIENT]}>
                 <ClinicPage />
               </RoleRoute>
             }
@@ -91,6 +94,14 @@ function App() {
             element={
               <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.DOCTOR]}>
                 <PatientPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="labs"
+            element={
+              <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.LAB, ROLE.PATIENT]}>
+                <LabPage />
               </RoleRoute>
             }
           />

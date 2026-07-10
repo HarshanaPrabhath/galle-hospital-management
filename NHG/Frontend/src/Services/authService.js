@@ -21,6 +21,41 @@ export const registerUser = async (patientData) => {
   }
 };
 
+// Register lab user
+export const registerLabUser = async (labData) => {
+  try {
+    const response = await apiClient.post('/auth/lab/register', labData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Lab registration failed' };
+  }
+};
+
+
+// Request password reset token
+export const forgotPassword = async (email) => {
+  try {
+    const response = await apiClient.post('/auth/forgot-password', { email });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to send reset email' };
+  }
+};
+
+// Reset password with token from email
+export const resetPassword = async ({ token, newPassword, confirmPassword }) => {
+  try {
+    const response = await apiClient.post('/auth/reset-password', {
+      token,
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to reset password' };
+  }
+};
+
 
 // Logout user
 export const logoutUser = async () => {
