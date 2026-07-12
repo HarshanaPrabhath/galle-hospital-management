@@ -26,6 +26,12 @@ import LabPage from '../features/labs/pages/LabPage';
 import StaffAccountsPage from '../features/staff/pages/StaffAccountsPage';
 import AppointmentRequestsPage from '../features/dashboard/pages/AppointmentRequestsPage';
 import { getAuthData, hasRole, ROLE } from '../shared/utils/auth';
+import CardiologyICU from '../features/clinical specialities/cardiologyicu';
+import Surgery from '../features/clinical specialities/surgery';
+import Laboratorypathology from '../features/clinical specialities/laboratorypathology';
+import Maternitygynaecology from '../features/clinical specialities/Maternitygynaecology';
+import Pediatricsneonatology from '../features/clinical specialities/Pediatricsneonatology';
+import Radiologyimaging from '../features/clinical specialities/Radiologyimaging';
 
 function ProtectedDashboard() {
   const authData = getAuthData();
@@ -72,7 +78,17 @@ function App() {
         <Route path="/publications" element={<PublicationsPage />} />
         <Route path="/contact" element={<ContactPage />} />
 
-        
+        <Route path="/departments/cardiology-icu" element= {<CardiologyICU/>}/>
+
+
+        <Route path="/departments/surgery" element = {<Surgery/>}/>
+        <Route path="/departments/laboratorypathology" element = {<Laboratorypathology/>}/>
+        <Route path="/departments/maternitygynaecology" element = {<Maternitygynaecology/>}/>
+        <Route path="/departments/pediatricsneonatology" element = {<Pediatricsneonatology/>}/>
+        <Route path="/departments/radiologyimaging" element = {<Radiologyimaging/>}/>
+
+
+
         <Route path="/dashboard" element={<ProtectedDashboard />}>
           <Route index element={<DashboardHome />} />
           <Route
