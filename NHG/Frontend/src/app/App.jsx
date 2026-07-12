@@ -1,8 +1,7 @@
 
-import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
-import '../App.css'
-// Layout
+import "../App.css";
 import DashboardLayout from "../features/dashboard/layout/DashboardLayout";
 
 import HomePage from "../features/public/pages/HomePage";
@@ -58,7 +57,6 @@ function RoleRoute({ allowedRoles, children }) {
 }
 
 function App() {
-
   return (
     <>
       <Router>
@@ -91,60 +89,17 @@ function App() {
 
         <Route path="/dashboard" element={<ProtectedDashboard />}>
           <Route index element={<DashboardHome />} />
-          <Route
-            path="doctors"
-            element={
-              <RoleRoute allowedRoles={[ROLE.ADMIN]}>
-                <DoctorPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="clinics"
-            element={
-              <RoleRoute allowedRoles={[ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.PATIENT]}>
-                <ClinicPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="patients"
-            element={
-              <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.DOCTOR]}>
-                <PatientPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="staff"
-            element={
-              <RoleRoute allowedRoles={[ROLE.ADMIN]}>
-                <StaffAccountsPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="labs"
-            element={
-              <RoleRoute allowedRoles={[ROLE.ADMIN, ROLE.LAB, ROLE.PATIENT]}>
-                <LabPage />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="appointment-requests"
-            element={
-              <RoleRoute allowedRoles={[ROLE.CONSULTANT, ROLE.PATIENT]}>
-                <AppointmentRequestsPage />
-              </RoleRoute>
-            }
-          />
+          {DASHBOARD_ROUTES.map(({ path, element, roles }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<RoleRoute allowedRoles={roles}>{element}</RoleRoute>}
+            />
+          ))}
         </Route>
-
       </Routes>
-      </Router>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;

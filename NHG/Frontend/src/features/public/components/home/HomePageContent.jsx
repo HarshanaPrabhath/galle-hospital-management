@@ -1,4 +1,23 @@
-import HomePageContent from "../components/home/HomePageContent";
+import { useState, useEffect } from "react";
+import ClinicQueue from "../ClinicQueue";
+import Navbar from "../../../../shared/components/Navbar";
+import Footer from "../../../../shared/components/Footer";
+import { Link, useNavigate } from "react-router-dom";
+import Login from "../../../auth/pages/Login";
+import Register from "../../../auth/pages/Register";
+import { getAuthData } from "../../../../shared/utils/auth";
+import { getAllDoctors } from "../../../doctors/services/doctorService";
+import {
+  DOCTOR_CARD_COLORS,
+  getDoctorId,
+  getDoctorInitials,
+  getDoctorName,
+  LIVE_QUEUES,
+  NEWS,
+  SPECIALTIES,
+  STATS,
+  toArray,
+} from "./homeConfig";
 
 // ── Icons (Inline SVG Helpers for strict performance) ──────────────────────
 const Icon = ({ d, size = 16, className = "" }) => (
@@ -14,103 +33,6 @@ const ChevronRight = () => <Icon d="M9 18l6-6-6-6" size={14} />;
 const AlertIcon = () => <Icon d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01" size={14} />;
 const BotIcon = () => <Icon d="M12 2a4 4 0 014 4v2a4 4 0 01-4 4 4 4 0 01-4-4V6a4 4 0 014-4z M8 22v-2a4 4 0 014-4 4 4 4 0 014 4v2 M2 22h20" size={14} />;
 
-// ── Static Configurations Data ──────────────────────────────────────────────
-const LIVE_QUEUES = [
-  { id: 1, label: "OPD – General", count: 47, critical: false },
-  { id: 2, label: "Cardiology Clinic", count: 23, critical: false },
-  { id: 3, label: "Pediatrics OPD", count: 31, critical: false },
-  { id: 4, label: "Maternity Clinic", count: 58, critical: true },
-  { id: 5, label: "Emergency / Ambulance", count: null, critical: false },
-];
-
-
-
-const SPECIALTIES = [
-  {
-    icon: "❤️",
-    name: "Cardiology & ICU",
-    path: "/departments/cardiology-icu",
-    desc: "Cardiac cath, angiography, ECG, echocardiography, coronary care and advanced cardiac procedures."
-  },
-  {
-    icon: "🤱",
-    name: "Maternity & Gynaecology",
-    path: "/departments/Maternitygynaecology",
-    desc: "Antenatal care, safe delivery, postnatal services, NICU and comprehensive gynaecological procedures."
-  },
-  {
-    icon: "🔬",
-    name: "Surgery",
-    path: "/departments/surgery",
-    desc: "General, orthopedic, laparoscopic, neuro and plastic surgeons with modern operation theatres."
-  },
-  {
-    icon: "👶",
-    name: "Pediatrics & Neonatology",
-    path: "/departments/Pediatricsneonatology",
-    desc: "Children's ward, neonatal ICU, developmental clinics and child welfare services."
-  },
-  {
-    icon: "📡",
-    name: "Radiology & Imaging",
-    path: "/departments/radiologyimaging",
-    desc: "X-ray, CT scan, MRI, ultrasound and PACS-integrated digital imaging with 3T MRI."
-  },
-  {
-    icon: "🧪",
-    name: "Laboratory & Pathology",
-    path: "/departments/laboratorypathology",
-    desc: "Haematology, biochemistry, microbiology, histopathology with LIMS integration."
-  },
-];
-
-const STATS = [
-  { num: "1,200+", label: "Hospital Beds" },
-  { num: "40+", label: "Medical Specialties" },
-  { num: "850+", label: "Medical Staff" },
-  { num: "500K+", label: "Patients / Year" },
-  { num: "3", label: "Languages Supported" },
-];
-
-const NEWS = [
-  { tag: "Health Alert", tagColor: "bg-red-50 text-red-700 border-red-100", title: "Dengue Campaign Launched in Southern Province", desc: "Health teams conducting community outreach to prevent dengue spread this season.", date: "May 3, 2026" },
-  { tag: "Facility Improve", tagColor: "bg-blue-50 text-blue-700 border-blue-100", title: "New 3T MRI Unit Inaugurated at Radiology Department", desc: "State-of-the-art 3T MRI unit offering specialised, improved diagnostic imaging capacity.", date: "April 28, 2026" },
-  { tag: "Online", tagColor: "bg-green-50 text-green-700 border-green-100", title: "Online Appointment System Now Live for All OPD Departments", desc: "Patients can now book, reschedule or cancel appointments from the hospital website.", date: "April 22, 2026" },
-];
-
-const DOCTOR_CARD_COLORS = [
-  "bg-teal-600",
-  "bg-purple-600",
-  "bg-emerald-600",
-  "bg-blue-600",
-  "bg-rose-600",
-  "bg-amber-600",
-];
-
-const toArray = (data) => {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.doctors)) return data.doctors;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.content)) return data.content;
-  return [];
-};
-
-const getDoctorId = (doctor, index) =>
-  doctor?.id ?? doctor?.doctorId ?? doctor?.userId ?? doctor?.email ?? index;
-
-const getDoctorName = (doctor) =>
-  [doctor?.title, doctor?.firstName, doctor?.lastName].filter(Boolean).join(" ") ||
-  doctor?.name ||
-  doctor?.email ||
-  "Doctor";
-
-const getDoctorInitials = (doctor) => {
-  const parts = [doctor?.firstName, doctor?.lastName].filter(Boolean);
-  if (parts.length) {
-    return parts.map((part) => part.charAt(0)).join("").slice(0, 2).toUpperCase();
-  }
-  return getDoctorName(doctor).split(" ").map((part) => part.charAt(0)).join("").slice(0, 2).toUpperCase();
-};
 
 // ── Shared Layout/Card Components ───────────────────────────────────────────
 function SectionHeader({ subtitle, title, rightContent }) {
@@ -255,33 +177,21 @@ function QuickNav({ onBookAppointment }) {
   );
 }
 
-
 function ClinicalSpecialties() {
   return (
     <section className="py-16 px-4 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        <SectionHeader
-          subtitle="Departments & Services"
-          title="Clinical Specialties"
+        <SectionHeader 
+          subtitle="Departments & Services" 
+          title="Clinical Specialties" 
         />
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SPECIALTIES.map((s) => (
-            <Link key={s.name} to={s.path}>
-              <div className="bg-white border border-slate-200/60 rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all group cursor-pointer h-full">
-                <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">
-                  {s.icon}
-                </div>
-
-                <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700">
-                  {s.name}
-                </h3>
-
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {s.desc}
-                </p>
-              </div>
-            </Link>
+            <div key={s.name} className="bg-white border border-slate-200/60 rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">{s.icon}</div>
+              <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700 transition-colors">{s.name}</h3>
+              <p className="text-xs text-slate-500 mb-5 leading-relaxed">{s.desc}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -310,32 +220,32 @@ function BookingSection() {
     "Receive transactional SMS gate allocation token pass",
   ];
 
-  // return (
-    // <section className="py-16 px-4 bg-white border-b border-slate-100">
-    //   <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-start">
-    //     {/* Left Info Panel */}
-    //     <div className="flex-1 lg:max-w-xl">
-    //       <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Automated Online Access</p>
-    //       <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">Book Your Consultant Consultation in Minutes</h2>
-    //       <p className="text-sm text-slate-500 mb-8 leading-relaxed">
-    //         Eliminate traditional waiting windows. Secure appointment passes, track physical attendance queues live, and aggregate treatment schedules seamlessly under unified national healthcare records profiles.
-    //       </p>
-    //       <ol className="space-y-4 mb-8">
-    //         {steps.map((s, i) => (
-    //           <li key={i} className="flex items-start gap-3">
-    //             <span className="w-6 h-6 rounded-full bg-teal-900 text-amber-400 text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
-    //             <span className="text-sm font-medium text-slate-700 mt-0.5">{s}</span>
-    //           </li>
-    //         ))}
-    //       </ol>
-    //       <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50">
-    //         <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide mb-1">Patient Digital Portal Registration</h4>
-    //         <p className="text-xs text-slate-500 mb-4">Sync records across lab operations and prescriptions diagnostics lists automatically via My-NHG accounts.</p>
-    //         <button className="text-xs font-bold px-4 py-2 rounded-xl border border-teal-950 text-teal-950 hover:bg-teal-950 hover:text-white transition-all">Register Patient Profile</button>
-    //       </div>
-    //     </div>
+  return (
+    <section className="py-16 px-4 bg-white border-b border-slate-100">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-start">
+        {/* Left Info Panel */}
+        <div className="flex-1 lg:max-w-xl">
+          <p className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Automated Online Access</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">Book Your Consultant Consultation in Minutes</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+            Eliminate traditional waiting windows. Secure appointment passes, track physical attendance queues live, and aggregate treatment schedules seamlessly under unified national healthcare records profiles.
+          </p>
+          <ol className="space-y-4 mb-8">
+            {steps.map((s, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-teal-900 text-amber-400 text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
+                <span className="text-sm font-medium text-slate-700 mt-0.5">{s}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50">
+            <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide mb-1">Patient Digital Portal Registration</h4>
+            <p className="text-xs text-slate-500 mb-4">Sync records across lab operations and prescriptions diagnostics lists automatically via My-NHG accounts.</p>
+            <button className="text-xs font-bold px-4 py-2 rounded-xl border border-teal-950 text-teal-950 hover:bg-teal-950 hover:text-white transition-all">Register Patient Profile</button>
+          </div>
+        </div>
 
-        {/* Right – Interactive Scheduling Engine Widget
+        {/* Right – Interactive Scheduling Engine Widget */}
         <div className="w-full lg:w-[400px] bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8">
           <h3 className="font-extrabold text-slate-900 mb-5 text-lg tracking-tight">Quick Session Allocator</h3>
           <form onSubmit={handleBook} className="space-y-4">
@@ -353,8 +263,8 @@ function BookingSection() {
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Consultant Physician</label>
               <select value={form.doc} onChange={e => setForm({...form, doc: e.target.value})} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all">
-                <option value="">Select Professional Desk</option> */}
-                {/* <option>Dr. S. Karunanayake (Cardiology)</option>
+                <option value="">Select Professional Desk</option>
+                <option>Dr. S. Karunanayake (Cardiology)</option>
                 <option>Dr. R. Pathinge (Pediatrics)</option>
                 <option>Dr. H. Wickramasinghe (Neurology)</option>
               </select>
@@ -372,10 +282,10 @@ function BookingSection() {
             </button>
             <p className="text-[10px] text-slate-400 text-center">SMS token verification pipelines apply standard telecom rates.</p>
           </form>
-        </div> */}
-  //     </div>
-  //   </section>
-  // );
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function SpecialistConsultants() {
