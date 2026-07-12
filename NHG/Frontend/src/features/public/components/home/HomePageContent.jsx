@@ -113,9 +113,9 @@ function HeroSection({ onBookAppointment }) {
             <Link className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-700 text-white hover:bg-slate-800/50 active:scale-98 transition-all" to="/doctors">
               Find a Doctor
             </Link>
-            <button className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-teal-500/30 text-teal-300 bg-teal-500/5 hover:bg-teal-500/10 flex items-center gap-2 active:scale-98 transition-all">
+            {/* <button className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-teal-500/30 text-teal-300 bg-teal-500/5 hover:bg-teal-500/10 flex items-center gap-2 active:scale-98 transition-all">
               <BotIcon /> AI Assistant
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -155,7 +155,7 @@ function QuickNav({ onBookAppointment }) {
     { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Profiles & specialties" },
     { icon: "🏥", label: "Today's Clinics", sub: "Real-time updates" },
     { icon: "🚑", label: "Emergency Help", sub: "Ambulance response" },
-    { icon: "🤖", label: "AI Assistant", sub: "24/7 patient support" },
+   
   ];
   return (
     <div className="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm overflow-hidden">
@@ -181,23 +181,35 @@ function ClinicalSpecialties() {
   return (
     <section className="py-16 px-4 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        <SectionHeader 
-          subtitle="Departments & Services" 
-          title="Clinical Specialties" 
+        <SectionHeader
+          subtitle="Departments & Services"
+          title="Clinical Specialties"
         />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SPECIALTIES.map((s) => (
-            <div key={s.name} className="bg-white border border-slate-200/60 rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 transition-all group">
-              <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">{s.icon}</div>
-              <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700 transition-colors">{s.name}</h3>
-              <p className="text-xs text-slate-500 mb-5 leading-relaxed">{s.desc}</p>
-            </div>
+            <Link key={s.name} to={s.path}>
+              <div className="bg-white border border-slate-200/60 rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all group cursor-pointer h-full">
+                <div className="text-3xl mb-4 bg-slate-50 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-100">
+                  {s.icon}
+                </div>
+
+                <h3 className="font-bold text-slate-800 mb-2 group-hover:text-teal-700">
+                  {s.name}
+                </h3>
+
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {s.desc}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 function BookingSection() {
   const [form, setForm] = useState({ dept: "", doc: "", date: "", nic: "" });
@@ -238,14 +250,18 @@ function BookingSection() {
               </li>
             ))}
           </ol>
+        
           <div className="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50">
             <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wide mb-1">Patient Digital Portal Registration</h4>
             <p className="text-xs text-slate-500 mb-4">Sync records across lab operations and prescriptions diagnostics lists automatically via My-NHG accounts.</p>
-            <button className="text-xs font-bold px-4 py-2 rounded-xl border border-teal-950 text-teal-950 hover:bg-teal-950 hover:text-white transition-all">Register Patient Profile</button>
+            <Link to="/book-appointment" className="inline-block text-xs font-bold px-4 py-2 rounded-xl border border-teal-950 text-teal-950 hover:bg-teal-950 hover:text-white transition-all">
+            Register Patient Profile
+        </Link>
           </div>
+          
         </div>
 
-        {/* Right – Interactive Scheduling Engine Widget */}
+        //  Right – Interactive Scheduling Engine Widget
         <div className="w-full lg:w-[400px] bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8">
           <h3 className="font-extrabold text-slate-900 mb-5 text-lg tracking-tight">Quick Session Allocator</h3>
           <form onSubmit={handleBook} className="space-y-4">
@@ -282,7 +298,7 @@ function BookingSection() {
             </button>
             <p className="text-[10px] text-slate-400 text-center">SMS token verification pipelines apply standard telecom rates.</p>
           </form>
-        </div>
+        </div> 
       </div>
     </section>
   );
@@ -383,9 +399,9 @@ function SpecialistConsultants() {
                   <span>{d.specialization || "Specialist consultant"}</span>
                 </div>
               </div>
-              <button className="w-full py-2 rounded-xl text-xs font-bold border border-teal-800 text-teal-800 hover:bg-teal-50 transition-all">
+              {/* <button className="w-full py-2 rounded-xl text-xs font-bold border border-teal-800 text-teal-800 hover:bg-teal-50 transition-all">
                 Request Profile Channel
-              </button>
+              </button> */}
             </div>
           ))}
         </div>
@@ -555,9 +571,12 @@ function DonateSection() {
             Your generous contributions directly support infrastructure development pipelines, high-precision instrument purchase support programs, and emergency care subsidies supporting economically vulnerable populations.
           </p>
         </div>
-        <button className="flex-shrink-0 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-amber-400 hover:bg-amber-300 transition-all shadow-md shadow-amber-500/5">
+        <Link to="/donate" className="flex-shrink-0 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-amber-400 hover:bg-amber-300 transition-all shadow-md shadow-amber-500/5">
           Contribute Fundings
-        </button>
+        </Link>
+
+          
+        
       </div>
     </section>
   );
@@ -659,7 +678,7 @@ export default function NationalHospitalGalle() {
       </div>
 
       <ClinicalSpecialties />
-      <BookingSection />
+      {/* <BookingSection /> */}
       <SpecialistConsultants />
       <AIAssistant />
       <StatsBar />
