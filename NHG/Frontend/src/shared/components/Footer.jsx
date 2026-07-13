@@ -92,7 +92,7 @@ export default function Footer() {
           <div className="flex gap-4">
             <Link to="/privacy-policy" className="hover:text-white/70 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-white/70 transition-colors">Terms of Use</Link>
-            <Link to="/sitemap" className="hover:text-white/70 transition-colors">Sitemap</Link>
+            {/* <Link to="/sitemap" className="hover:text-white/70 transition-colors">Sitemap</Link> */}
           </div>
         </div>
       </div>
