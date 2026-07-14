@@ -29,6 +29,8 @@ import BookAppointmentPage from "../features/appointments/pages/BookAppointmentP
 import ContactPage from "../features/public/pages/ContactPage";
 import PublicationsPage from "../features/public/pages/PublicationsPage";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPassword";
+import PrivacyPolicyPage from "../features/public/pages/PrivacyPolicy";
+import TermsOfUsePage from "../features/public/pages/termsofuse";
 
 import DashboardHome from "../features/dashboard/pages/DashboardHome";
 import DoctorPage from "../features/doctors/pages/DoctorPage";
@@ -61,6 +63,8 @@ const PUBLIC_ROUTES = [
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
   { path: "/publications", element: <PublicationsPage /> },
   { path: "/contact", element: <ContactPage /> },
+  {path: "/privacy-policy", element: <PrivacyPolicyPage />},
+  {path: "/terms", element: <TermsOfUsePage />},
 
   { path: "/departments/cardiology-icu", element: <CardiologyICU /> },
   { path: "/departments/surgery", element: <Surgery /> },
