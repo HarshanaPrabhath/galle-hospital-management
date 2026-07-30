@@ -419,25 +419,53 @@ function AIAssistant() {
   
   const suggested = ["How to book an appointment?", "Where is the pharmacy?", "Cardiology clinic schedule"];
 
-  const triggerBotResponse = (userQuery) => {
+  const triggerBotResponse = async (userQuery) => {
     setIsTyping(true);
-    setTimeout(() => {
-      let botText = "I see your request. For deeper scheduling logs, please dial desk extensions or use the patient portal registries directly.";
-      if (userQuery.toLowerCase().includes("pharmacy")) {
-        botText = "The Main Outpatient Pharmacy station is structured across Block C ground floor. Operating hours run alongside standard OPD channels daily.";
-      } else if (userQuery.toLowerCase().includes("appointment")) {
-        botText = "You can secure standard appointments by tracking target profiles through our core Allocation widget located right above on this page.";
+
+    try {
+      const response = await fetch("http://localhost:5000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userQuery,
+          instructions: "Reply briefly as a hospital help desk assistant.",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || data?.error || "Chat request failed.");
       }
+
+      const botText =
+        data?.reply ||
+        "I could not find a response right now. Please contact the hospital help desk for urgent assistance.";
+
       setMessages(prev => [...prev, { sender: "bot", text: botText }]);
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: "bot",
+          text:
+            err.message ||
+            "Sorry, the AI help desk is unavailable right now. Please try again shortly.",
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   const handleSend = (text) => {
     if (!text.trim()) return;
-    setMessages(prev => [...prev, { sender: "user", text }]);
+    const userMessage = text.trim();
+    setMessages(prev => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
-    triggerBotResponse(text);
+    triggerBotResponse(userMessage);
   };
 
   return (
@@ -475,7 +503,7 @@ function AIAssistant() {
           <div className="flex-1 p-4 space-y-3 overflow-y-auto bg-white">
             {messages.map((m, idx) => (
               <div key={idx} className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] text-xs px-3.5 py-2.5 rounded-2xl ${m.sender === "user" ? "bg-teal-700 text-white rounded-br-none" : "bg-slate-100 text-slate-700 rounded-bl-none border border-slate-200/50"}`}>
+                <div className={`max-w-[85%] whitespace-pre-line text-xs px-3.5 py-2.5 rounded-2xl ${m.sender === "user" ? "bg-teal-700 text-white rounded-br-none" : "bg-slate-100 text-slate-700 rounded-bl-none border border-slate-200/50"}`}>
                   {m.text}
                 </div>
               </div>
