@@ -55,7 +55,7 @@ public class EmailService {
     }
 
     public void sendAppointmentAcceptedEmail(String toEmail, String patientName, String clinicName, String clinicDate,
-                                             String startTime, String endTime, String location, String consultantName,
+                                             String startTime, String endTime, String location, String nurseName,
                                              Long appointmentId) {
         if (toEmail == null || toEmail.isBlank()) {
             logger.warn("Cannot send appointment accepted email for appointment {} because patient email is missing", appointmentId);
@@ -77,17 +77,17 @@ public class EmailService {
         message.setText("""
                 Dear %s,
 
-                Your clinic request has been approved by the consultant.
+                Your clinic request has been approved by the nurse.
 
                 Request ID: %s
                 Clinic: %s
-                Consultant: %s
+                Nurse: %s
                 Date: %s
                 Time: %s - %s
                 Location: %s
 
                 Please arrive on time with any relevant medical documents.
-                """.formatted(patientName, appointmentId, clinicName, consultantName, clinicDate, startTime, endTime, location));
+                """.formatted(patientName, appointmentId, clinicName, nurseName, clinicDate, startTime, endTime, location));
 
         try {
             mailSender.send(message);

@@ -5,7 +5,6 @@ import com.management.galle_hospital.Model.Patient;
 import com.management.galle_hospital.Model.PasswordResetToken;
 import com.management.galle_hospital.Model.Role;
 import com.management.galle_hospital.Model.User;
-import com.management.galle_hospital.Payload.ConsultantRegistrationRequest;
 import com.management.galle_hospital.Payload.DoctorRegistrationRequest;
 import com.management.galle_hospital.Payload.ForgotPasswordRequest;
 import com.management.galle_hospital.Payload.LabRegistrationRequest;
@@ -178,31 +177,6 @@ public class UserService {
         User savedLab = userRepository.save(lab);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "Lab registered successfully", "id", savedLab.getId().toString()));
-    }
-
-    public ResponseEntity<Map<String, String>> registerConsultant(ConsultantRegistrationRequest request) {
-        if (request == null) {
-            return error("Consultant registration details are required", HttpStatus.BAD_REQUEST);
-        }
-        String validationError = validateRegistration(
-                request.getFirstName(),
-                request.getEmail(),
-                request.getPassword(),
-                request.getConfirmPassword(),
-                request.getMobile(),
-                request.getNic(),
-                request.getDob()
-        );
-        if (validationError != null) {
-            return error(validationError, HttpStatus.BAD_REQUEST);
-        }
-
-        User consultant = buildStaffUser(request.getFirstName(), request.getLastName(), request.getNic(), request.getDob(),
-                request.getMobile(), request.getAddress(), request.getEmail(), request.getPassword(), Role.CONSULTANT);
-
-        User savedConsultant = userRepository.save(consultant);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "Consultant registered successfully", "id", savedConsultant.getId().toString()));
     }
 
     public ResponseEntity<Map<String, String>> registerNurse(NurseRegistrationRequest request) {

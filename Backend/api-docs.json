@@ -1,0 +1,391 @@
+{
+  "info": {
+    "name": "Galle Hospital Management API",
+    "version": "2.0.0",
+    "description": "REST API. Consultant role removed; Nurse role handles all clinic and appointment responsibilities.",
+    "baseUrl": "http://localhost:8081"
+  },
+  "roles": ["ADMIN", "DOCTOR", "PATIENT", "NURSE", "LAB"],
+  "endpoints": {
+    "auth": {
+      "base": "/api/auth",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/api/auth/register",
+          "description": "Register a patient (simple form)",
+          "requestBody": {
+            "name": "string (required)",
+            "email": "string (required)",
+            "password": "string (required, min 8 chars, must contain letter and digit)"
+          },
+          "response201": { "message": "Patient registered successfully", "id": "1" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/patient/register",
+          "description": "Register a patient (full form)",
+          "requestBody": {
+            "firstName": "string (required)",
+            "lastName": "string",
+            "nic": "string (12 digits or 9 digits + V/X)",
+            "dob": "YYYY-MM-DD",
+            "mobile": "string (required, 10 digits or +94 format)",
+            "address": "string",
+            "email": "string (required)",
+            "password": "string (required)",
+            "confirmPassword": "string (required)"
+          },
+          "response201": { "message": "Patient registered successfully", "id": "1" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/doctor/register",
+          "description": "Register a doctor",
+          "requestBody": {
+            "firstName": "string (required)",
+            "lastName": "string",
+            "nic": "string",
+            "dob": "YYYY-MM-DD",
+            "mobile": "string (required)",
+            "address": "string",
+            "email": "string (required)",
+            "password": "string (required)",
+            "confirmPassword": "string (required)",
+            "title": "string",
+            "profilePhoto": "string",
+            "specialization": "string",
+            "licenseNumber": "string",
+            "department": "string",
+            "qualification": "string"
+          },
+          "response201": { "message": "Doctor registered successfully", "id": "1" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/nurse/register",
+          "description": "Register a nurse (handles all clinic/appointment responsibilities)",
+          "requestBody": {
+            "firstName": "string (required)",
+            "lastName": "string",
+            "nic": "string",
+            "dob": "YYYY-MM-DD",
+            "mobile": "string (required)",
+            "address": "string",
+            "email": "string (required)",
+            "password": "string (required)",
+            "confirmPassword": "string (required)"
+          },
+          "response201": { "message": "Nurse registered successfully", "id": "1" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/lab/register",
+          "description": "Register a lab staff member",
+          "requestBody": {
+            "firstName": "string (required)",
+            "lastName": "string",
+            "nic": "string",
+            "dob": "YYYY-MM-DD",
+            "mobile": "string (required)",
+            "address": "string",
+            "email": "string (required)",
+            "password": "string (required)",
+            "confirmPassword": "string (required)"
+          },
+          "response201": { "message": "Lab registered successfully", "id": "1" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/login",
+          "aliases": ["/api/auth/signin"],
+          "description": "Login for any role",
+          "requestBody": {
+            "email": "string (required)",
+            "password": "string (required)"
+          },
+          "response200": { "message": "Login successful", "id": "1", "role": "NURSE" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/forgot-password",
+          "description": "Request password reset email",
+          "requestBody": { "email": "string (required)" },
+          "response200": { "message": "If the email exists, a password reset email has been sent" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/reset-password",
+          "description": "Reset password using token from email",
+          "requestBody": {
+            "token": "string (required)",
+            "newPassword": "string (required)",
+            "confirmPassword": "string (required)"
+          },
+          "response200": { "message": "Password reset successfully" }
+        }
+      ]
+    },
+    "nurses": {
+      "base": "/api/nurses",
+      "description": "Manage nurses. Nurses handle clinic sessions and appointment requests.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nurses",
+          "description": "Get all nurses",
+          "response200": [
+            {
+              "id": 1,
+              "firstName": "Jane",
+              "lastName": "Doe",
+              "nic": "123456789V",
+              "dob": "1990-05-15",
+              "mobile": "0771234567",
+              "address": "123 Main St",
+              "email": "jane.doe@hospital.com",
+              "role": "NURSE"
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/api/nurses/{id}",
+          "description": "Get nurse by ID",
+          "pathParams": { "id": "number (required)" },
+          "response200": {
+            "id": 1,
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "nic": "123456789V",
+            "dob": "1990-05-15",
+            "mobile": "0771234567",
+            "address": "123 Main St",
+            "email": "jane.doe@hospital.com",
+            "role": "NURSE"
+          },
+          "response404": { "message": "Nurse not found" }
+        },
+        {
+          "method": "PUT",
+          "path": "/api/nurses/{id}",
+          "description": "Update nurse profile",
+          "pathParams": { "id": "number (required)" },
+          "requestBody": {
+            "firstName": "string (optional)",
+            "lastName": "string (optional)",
+            "nic": "string (optional)",
+            "dob": "YYYY-MM-DD (optional)",
+            "mobile": "string (optional)",
+            "address": "string (optional)",
+            "email": "string (optional)"
+          },
+          "response200": { "id": 1, "firstName": "Jane", "lastName": "Smith", "role": "NURSE" },
+          "response404": { "message": "Nurse not found" }
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/nurses/{id}",
+          "description": "Delete a nurse",
+          "pathParams": { "id": "number (required)" },
+          "response200": { "message": "Nurse deleted successfully" },
+          "response404": { "message": "Nurse not found" }
+        }
+      ]
+    },
+    "clinics": {
+      "base": "/api/clinics",
+      "description": "Clinics are assigned to a nurse who manages their appointment sessions.",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/clinics",
+          "description": "Get all clinics",
+          "response200": [
+            {
+              "id": 1,
+              "clinicName": "Cardiology Clinic",
+              "description": "Heart health clinic",
+              "nurse": { "id": 1, "firstName": "Jane", "lastName": "Doe", "role": "NURSE" },
+              "doctors": []
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/api/clinics/{id}",
+          "description": "Get clinic by ID",
+          "response404": { "message": "Clinic not found" }
+        },
+        {
+          "method": "POST",
+          "path": "/api/clinics",
+          "description": "Create a new clinic",
+          "requestBody": {
+            "clinicName": "string (required)",
+            "description": "string (optional)",
+            "nurseId": "number (required) — must be a NURSE role user",
+            "doctorIds": "[number] (optional)"
+          },
+          "response201": {
+            "id": 1,
+            "clinicName": "Cardiology Clinic",
+            "description": "Heart health clinic",
+            "nurse": { "id": 1, "firstName": "Jane", "lastName": "Doe" },
+            "doctors": [{ "id": 2, "firstName": "Dr. Smith" }]
+          },
+          "response400": { "message": "nurseId is required | nurseId must belong to a NURSE user | ..." }
+        },
+        {
+          "method": "PUT",
+          "path": "/api/clinics/{id}",
+          "description": "Update clinic",
+          "requestBody": {
+            "clinicName": "string (optional)",
+            "description": "string (optional)",
+            "nurseId": "number (optional)",
+            "doctorIds": "[number] (optional)"
+          },
+          "response200": { "id": 1, "clinicName": "Updated Clinic" },
+          "response404": { "message": "Clinic not found" }
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/clinics/{id}",
+          "description": "Delete a clinic",
+          "response200": { "message": "Clinic deleted successfully" },
+          "response404": { "message": "Clinic not found" }
+        }
+      ]
+    },
+    "appointments": {
+      "base": "/api/appointments",
+      "description": "Appointment requests managed by nurses assigned to clinics.",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/api/appointments/requests",
+          "description": "Patient creates an appointment request for a clinic session",
+          "requestBody": {
+            "patientId": "number (required)",
+            "clinicSessionId": "number (required)",
+            "reason": "string (optional)",
+            "description": "string (optional)"
+          },
+          "response201": {
+            "id": 1,
+            "status": "PENDING",
+            "description": "Back pain",
+            "reason": "Back pain",
+            "requestedAt": "2024-01-15T10:30:00",
+            "acceptedAt": null,
+            "removedAt": null,
+            "patientId": 5,
+            "patientName": "John Smith",
+            "patientEmail": "john@email.com",
+            "nurseId": 1,
+            "nurseName": "Jane Doe",
+            "clinicId": 2,
+            "clinicName": "Cardiology Clinic",
+            "clinicSessionId": 3,
+            "clinicDate": "2024-01-20",
+            "startTime": "09:00:00",
+            "endTime": "12:00:00",
+            "location": "Room 101",
+            "sessionDescription": "Morning session"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/appointments/requests",
+          "description": "Get all appointment requests",
+          "response200": ["[AppointmentRequestResponse]"]
+        },
+        {
+          "method": "GET",
+          "path": "/api/appointments/patients/{patientId}/requests",
+          "description": "Get appointment requests for a specific patient",
+          "pathParams": { "patientId": "number (required)" },
+          "response200": ["[AppointmentRequestResponse]"]
+        },
+        {
+          "method": "GET",
+          "path": "/api/appointments/nurses/{nurseId}/requests",
+          "description": "Get appointment requests for a specific nurse (optionally filtered by status)",
+          "pathParams": { "nurseId": "number (required)" },
+          "queryParams": { "status": "PENDING | ACCEPTED | REMOVED (optional)" },
+          "response200": ["[AppointmentRequestResponse]"],
+          "response404": { "message": "Nurse not found" },
+          "response400": { "message": "nurseId must belong to a NURSE user" }
+        },
+        {
+          "method": "GET",
+          "path": "/api/appointments/doctors/{doctorId}/accepted-requests",
+          "description": "Get accepted appointment requests for a specific doctor",
+          "pathParams": { "doctorId": "number (required)" },
+          "response200": ["[AppointmentRequestResponse]"]
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/appointments/requests/{requestId}/accept",
+          "description": "Nurse accepts a pending appointment request",
+          "pathParams": { "requestId": "number (required)" },
+          "queryParams": { "nurseId": "number (required)" },
+          "response200": { "id": 1, "status": "ACCEPTED", "acceptedAt": "2024-01-15T11:00:00" },
+          "response403": { "message": "Appointment request does not belong to this nurse" },
+          "response400": { "message": "Only pending appointment requests can be accepted | Clinic session is full" }
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/appointments/requests/{requestId}/remove",
+          "description": "Nurse removes/rejects an appointment request",
+          "pathParams": { "requestId": "number (required)" },
+          "queryParams": { "nurseId": "number (required)" },
+          "response200": { "id": 1, "status": "REMOVED", "removedAt": "2024-01-15T11:00:00" },
+          "response403": { "message": "Appointment request does not belong to this nurse" },
+          "response400": { "message": "Appointment request is already removed" }
+        }
+      ]
+    },
+    "doctors": {
+      "base": "/api/doctors",
+      "routes": [
+        { "method": "GET", "path": "/api/doctors", "description": "Get all doctors" },
+        { "method": "GET", "path": "/api/doctors/{id}", "description": "Get doctor by ID" },
+        { "method": "PUT", "path": "/api/doctors/{id}", "description": "Update doctor profile" },
+        { "method": "DELETE", "path": "/api/doctors/{id}", "description": "Delete doctor" }
+      ]
+    },
+    "patients": {
+      "base": "/api/patients",
+      "routes": [
+        { "method": "GET", "path": "/api/patients", "description": "Get all patients" },
+        { "method": "GET", "path": "/api/patients/{id}", "description": "Get patient by ID" },
+        { "method": "PUT", "path": "/api/patients/{id}", "description": "Update patient profile" },
+        { "method": "DELETE", "path": "/api/patients/{id}", "description": "Delete patient" }
+      ]
+    },
+    "clinicSessions": {
+      "base": "/api/clinic-sessions",
+      "routes": [
+        { "method": "GET", "path": "/api/clinic-sessions", "description": "Get all clinic sessions" },
+        { "method": "GET", "path": "/api/clinic-sessions/{id}", "description": "Get clinic session by ID" },
+        { "method": "POST", "path": "/api/clinic-sessions", "description": "Create clinic session" },
+        { "method": "PUT", "path": "/api/clinic-sessions/{id}", "description": "Update clinic session" },
+        { "method": "DELETE", "path": "/api/clinic-sessions/{id}", "description": "Delete clinic session" }
+      ]
+    }
+  },
+  "appointmentStatuses": ["PENDING", "ACCEPTED", "REMOVED"],
+  "changesFromV1": [
+    "CONSULTANT role removed from Role enum",
+    "POST /api/auth/consultant/register removed (use /api/auth/nurse/register)",
+    "GET /api/appointments/consultants/{consultantId}/requests → GET /api/appointments/nurses/{nurseId}/requests",
+    "PATCH /api/appointments/requests/{id}/accept?consultantId → ?nurseId",
+    "PATCH /api/appointments/requests/{id}/remove?consultantId → ?nurseId",
+    "POST /api/clinics body: consultantId → nurseId",
+    "PUT /api/clinics/{id} body: consultantId → nurseId",
+    "AppointmentRequestResponse: consultantId/consultantName → nurseId/nurseName",
+    "/api/consultants/* endpoints removed (use /api/nurses/*)"
+  ]
+}
