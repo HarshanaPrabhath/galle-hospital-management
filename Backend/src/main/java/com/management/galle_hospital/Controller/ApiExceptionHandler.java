@@ -6,10 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-<<<<<<< HEAD
+
 import org.springframework.web.server.ResponseStatusException;
-=======
->>>>>>> 8008e648ee9e711459d153e0b0163197dceabc84
+
 
 import java.util.Map;
 
@@ -26,7 +25,6 @@ public class ApiExceptionHandler {
         return error("Email or NIC already exists", HttpStatus.BAD_REQUEST);
     }
 
-<<<<<<< HEAD
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException exception) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
@@ -34,8 +32,7 @@ public class ApiExceptionHandler {
         return error(message, status);
     }
 
-=======
->>>>>>> 8008e648ee9e711459d153e0b0163197dceabc84
+
     private ResponseEntity<Map<String, String>> error(String message, HttpStatus status) {
         return ResponseEntity.status(status).body(Map.of("message", message));
     }

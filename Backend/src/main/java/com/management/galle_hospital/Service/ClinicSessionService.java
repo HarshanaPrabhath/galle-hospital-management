@@ -122,10 +122,10 @@ public class ClinicSessionService {
     }
 
     private ResponseEntity<?> validateClinicOwnership(Clinic clinic, Long consultantId) {
-        if (clinic == null || clinic.getConsultant() == null) {
+        if (clinic == null || clinic.getNurse() == null) {
             return error("Clinic does not have an assigned nurse", HttpStatus.BAD_REQUEST);
         }
-        if (!clinic.getConsultant().getId().equals(consultantId)) {
+        if (!clinic.getNurse().getId().equals(consultantId)) {
             return error("Nurse can only manage sessions for assigned clinics", HttpStatus.FORBIDDEN);
         }
         return null;
