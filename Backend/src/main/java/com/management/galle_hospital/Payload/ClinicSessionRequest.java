@@ -1,5 +1,6 @@
 package com.management.galle_hospital.Payload;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,8 @@ import java.time.LocalTime;
 @Setter
 public class ClinicSessionRequest {
     private Long clinicId;
-    private Long consultantId;
+    @JsonAlias("consultantId")
+    private Long nurseId;
     private LocalDate clinicDate;
     private LocalTime startTime;
     private LocalTime endTime;

@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { getAuthData } from "../../../utils/authStorage";
-import { ArrowLeft, Home, LayoutDashboard, MapPin, SearchX } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Home, LayoutDashboard, MapPin, SearchX } from "lucide-react";
  
-getAuthData
 export default function NotFoundPage() {
   const authData = getAuthData();
 

@@ -21,7 +21,7 @@ public class Clinic {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "consultant_id", nullable = false)
+    @JoinColumn(name = "nurse_id", nullable = false)
     private User nurse;
 
     @ManyToMany

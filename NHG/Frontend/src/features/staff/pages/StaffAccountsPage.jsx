@@ -1,17 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Edit2, Search, Trash2, UserCog, X } from "lucide-react";
+import { registerNurseUser } from "../../auth/services/authService";
 import {
-  registerConsultantUser,
-  registerNurseUser,
-} from "../../auth/services/authService";
-import {
-  deleteConsultant,
   deleteNurse,
-  getAllConsultants,
   getAllNurses,
-  getConsultantById,
   getNurseById,
-  updateConsultant,
   updateNurse,
 } from "../services/staffService";
 
@@ -28,16 +21,6 @@ const EMPTY_FORM = {
 };
 
 const ROLE_CONFIG = {
-  consultant: {
-    title: "Consultant",
-    pluralTitle: "Consultants",
-    register: registerConsultantUser,
-    getAll: getAllConsultants,
-    getById: getConsultantById,
-    update: updateConsultant,
-    delete: deleteConsultant,
-    emailPlaceholder: "consultant@gallehospital.com",
-  },
   nurse: {
     title: "Nurse",
     pluralTitle: "Nurses",
@@ -57,7 +40,6 @@ const asArray = (data) => {
   if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.content)) return data.content;
   if (Array.isArray(data?.users)) return data.users;
-  if (Array.isArray(data?.consultants)) return data.consultants;
   if (Array.isArray(data?.nurses)) return data.nurses;
   return [];
 };
@@ -126,6 +108,7 @@ function StaffModal({
   config,
   errors,
   form,
+  formError,
   mode,
   onChange,
   onClose,
@@ -159,6 +142,12 @@ function StaffModal({
             <X size={20} />
           </button>
         </div>
+
+        {formError && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {formError}
+          </div>
+        )}
 
         {isDelete ? (
           <p className="text-sm leading-6 text-slate-600">
@@ -272,7 +261,8 @@ function StaffCrudSection({ type }) {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
+  const [pageError, setPageError] = useState("");
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchStaff = useCallback(async () => {
@@ -280,10 +270,10 @@ function StaffCrudSection({ type }) {
       setLoading(true);
       const data = await config.getAll();
       setStaff(asArray(data));
-      setApiError("");
+      setPageError("");
     } catch (error) {
       setStaff([]);
-      setApiError(error.message || `Failed to load ${config.pluralTitle.toLowerCase()}.`);
+      setPageError(error.message || `Failed to load ${config.pluralTitle.toLowerCase()}.`);
     } finally {
       setLoading(false);
     }
@@ -310,25 +300,28 @@ function StaffCrudSection({ type }) {
     setForm(EMPTY_FORM);
     setSelected(null);
     setErrors({});
+    setFormError("");
     setModal("create");
   };
 
   const openEdit = async (person) => {
     try {
-      setApiError("");
+      setPageError("");
+      setFormError("");
       const latest = unwrapOne(await config.getById(getStaffId(person)));
       setSelected(latest);
       setForm(toForm(latest));
       setErrors({});
       setModal("edit");
     } catch (error) {
-      setApiError(error.message || `Failed to load ${config.title.toLowerCase()}.`);
+      setPageError(error.message || `Failed to load ${config.title.toLowerCase()}.`);
     }
   };
 
   const openDelete = (person) => {
     setSelected(person);
     setErrors({});
+    setFormError("");
     setModal("delete");
   };
 
@@ -336,6 +329,7 @@ function StaffCrudSection({ type }) {
     setModal(null);
     setSelected(null);
     setErrors({});
+    setFormError("");
   };
 
   const change = (field, value) => {
@@ -350,12 +344,13 @@ function StaffCrudSection({ type }) {
       const nextErrors = validate(form, modal);
       if (Object.keys(nextErrors).length) {
         setErrors(nextErrors);
+        setFormError("");
         return;
       }
     }
 
     try {
-      setApiError("");
+      setFormError("");
       if (modal === "create") {
         await config.register(buildCreatePayload(form));
       } else if (modal === "edit") {
@@ -366,7 +361,7 @@ function StaffCrudSection({ type }) {
       await fetchStaff();
       closeModal();
     } catch (error) {
-      setApiError(error.message || `Failed to ${modal} ${config.title.toLowerCase()}.`);
+      setFormError(error.message || `Failed to ${modal} ${config.title.toLowerCase()}.`);
     }
   };
 
@@ -407,9 +402,9 @@ function StaffCrudSection({ type }) {
           <p className="text-sm text-slate-500">{filtered.length} records shown</p>
         </div>
 
-        {apiError && (
+        {pageError && (
           <div className="m-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {apiError}
+            {pageError}
           </div>
         )}
 
@@ -481,6 +476,7 @@ function StaffCrudSection({ type }) {
           config={config}
           errors={errors}
           form={form}
+          formError={formError}
           mode={modal}
           onChange={change}
           onClose={closeModal}
@@ -503,11 +499,10 @@ export default function StaffAccountsPage() {
           Staff Account Management
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-          Register, update, and remove consultant and nurse accounts.
+          Register, update, and remove nurse accounts.
         </p>
       </div>
 
-      <StaffCrudSection type="consultant" />
       <StaffCrudSection type="nurse" />
     </div>
   );

@@ -19,6 +19,8 @@ import {
   toArray,
 } from "./homeConfig";
 
+const SHOW_BOOKING_SECTION = import.meta.env.VITE_SHOW_BOOKING_SECTION === "true";
+
 // ── Icons (Inline SVG Helpers for strict performance) ──────────────────────
 const Icon = ({ d, size = 16, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -31,7 +33,6 @@ const MapPinIcon = () => <Icon d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M
 const ClockIcon = () => <Icon d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2" />;
 const ChevronRight = () => <Icon d="M9 18l6-6-6-6" size={14} />;
 const AlertIcon = () => <Icon d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01" size={14} />;
-const BotIcon = () => <Icon d="M12 2a4 4 0 014 4v2a4 4 0 01-4 4 4 4 0 01-4-4V6a4 4 0 014-4z M8 22v-2a4 4 0 014-4 4 4 4 0 014 4v2 M2 22h20" size={14} />;
 
 
 // ── Shared Layout/Card Components ───────────────────────────────────────────
@@ -706,7 +707,7 @@ export default function NationalHospitalGalle() {
       </div>
 
       <ClinicalSpecialties />
-      {/* <BookingSection /> */}
+      {SHOW_BOOKING_SECTION && <BookingSection />}
       <SpecialistConsultants />
       <AIAssistant />
       <StatsBar />
