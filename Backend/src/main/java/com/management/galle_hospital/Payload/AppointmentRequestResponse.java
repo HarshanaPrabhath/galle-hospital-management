@@ -20,8 +20,8 @@ public class AppointmentRequestResponse {
     private final Long patientId;
     private final String patientName;
     private final String patientEmail;
-    private final Long consultantId;
-    private final String consultantName;
+    private final Long nurseId;
+    private final String nurseName;
     private final Long clinicId;
     private final String clinicName;
     private final Long clinicSessionId;
@@ -50,10 +50,10 @@ public class AppointmentRequestResponse {
         this.sessionDescription = request.getClinicSession().getDescription();
         this.clinicId = request.getClinicSession().getClinic().getId();
         this.clinicName = request.getClinicSession().getClinic().getClinicName();
-        this.consultantId = request.getClinicSession().getClinic().getConsultant().getId();
-        this.consultantName = fullName(
-                request.getClinicSession().getClinic().getConsultant().getFirstName(),
-                request.getClinicSession().getClinic().getConsultant().getLastName()
+        this.nurseId = request.getClinicSession().getClinic().getNurse().getId();
+        this.nurseName = fullName(
+                request.getClinicSession().getClinic().getNurse().getFirstName(),
+                request.getClinicSession().getClinic().getNurse().getLastName()
         );
     }
 

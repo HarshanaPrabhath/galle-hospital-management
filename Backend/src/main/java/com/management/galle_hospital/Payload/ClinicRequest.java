@@ -10,6 +10,6 @@ import java.util.List;
 public class ClinicRequest {
     private String clinicName;
     private String description;
-    private Long consultantId;
+    private Long nurseId;
     private List<Long> doctorIds;
 }

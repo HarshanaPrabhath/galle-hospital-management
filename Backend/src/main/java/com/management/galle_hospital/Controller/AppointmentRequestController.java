@@ -38,12 +38,12 @@ public class AppointmentRequestController {
         return appointmentRequestService.getRequestsByPatient(patientId);
     }
 
-    @GetMapping("/consultants/{consultantId}/requests")
-    public ResponseEntity<?> getRequestsByConsultant(
-            @PathVariable Long consultantId,
+    @GetMapping("/nurses/{nurseId}/requests")
+    public ResponseEntity<?> getRequestsByNurse(
+            @PathVariable Long nurseId,
             @RequestParam(required = false) AppointmentStatus status
     ) {
-        return appointmentRequestService.getRequestsByConsultant(consultantId, status);
+        return appointmentRequestService.getRequestsByNurse(nurseId, status);
     }
 
     @GetMapping("/doctors/{doctorId}/accepted-requests")
@@ -52,12 +52,12 @@ public class AppointmentRequestController {
     }
 
     @PatchMapping("/requests/{requestId}/accept")
-    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId, @RequestParam Long consultantId) {
-        return appointmentRequestService.acceptRequest(requestId, consultantId);
+    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId, @RequestParam Long nurseId) {
+        return appointmentRequestService.acceptRequest(requestId, nurseId);
     }
 
     @PatchMapping("/requests/{requestId}/remove")
-    public ResponseEntity<?> removeRequest(@PathVariable Long requestId, @RequestParam Long consultantId) {
-        return appointmentRequestService.removeRequest(requestId, consultantId);
+    public ResponseEntity<?> removeRequest(@PathVariable Long requestId, @RequestParam Long nurseId) {
+        return appointmentRequestService.removeRequest(requestId, nurseId);
     }
 }

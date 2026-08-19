@@ -22,7 +22,7 @@ public class Clinic {
 
     @ManyToOne
     @JoinColumn(name = "consultant_id", nullable = false)
-    private User consultant;
+    private User nurse;
 
     @ManyToMany
     @JoinTable(

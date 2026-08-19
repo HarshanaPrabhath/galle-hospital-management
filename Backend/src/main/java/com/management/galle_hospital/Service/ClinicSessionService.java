@@ -113,20 +113,20 @@ public class ClinicSessionService {
     private ResponseEntity<?> validateConsultant(Long consultantId) {
         var consultant = userRepository.findById(consultantId);
         if (consultant.isEmpty()) {
-            return error("Consultant not found", HttpStatus.BAD_REQUEST);
+            return error("Nurse not found", HttpStatus.BAD_REQUEST);
         }
-        if (consultant.get().getRole() != Role.CONSULTANT) {
-            return error("consultantId must belong to a CONSULTANT user", HttpStatus.BAD_REQUEST);
+        if (consultant.get().getRole() != Role.NURSE) {
+            return error("consultantId must belong to a NURSE user", HttpStatus.BAD_REQUEST);
         }
         return null;
     }
 
     private ResponseEntity<?> validateClinicOwnership(Clinic clinic, Long consultantId) {
         if (clinic == null || clinic.getConsultant() == null) {
-            return error("Clinic does not have an assigned consultant", HttpStatus.BAD_REQUEST);
+            return error("Clinic does not have an assigned nurse", HttpStatus.BAD_REQUEST);
         }
         if (!clinic.getConsultant().getId().equals(consultantId)) {
-            return error("Consultant can only manage sessions for assigned clinics", HttpStatus.FORBIDDEN);
+            return error("Nurse can only manage sessions for assigned clinics", HttpStatus.FORBIDDEN);
         }
         return null;
     }

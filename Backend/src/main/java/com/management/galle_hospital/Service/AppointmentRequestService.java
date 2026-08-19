@@ -46,8 +46,8 @@ public class AppointmentRequestService {
         }
 
         Clinic clinic = clinicSession.getClinic();
-        if (clinic == null || clinic.getConsultant() == null) {
-            return error("Clinic session does not have an assigned consultant", HttpStatus.BAD_REQUEST);
+        if (clinic == null || clinic.getNurse() == null) {
+            return error("Clinic session does not have an assigned nurse", HttpStatus.BAD_REQUEST);
         }
 
         if (appointmentRequestRepository.existsByPatientIdAndClinicSessionIdAndStatus(
@@ -87,15 +87,15 @@ public class AppointmentRequestService {
                 .toList();
     }
 
-    public ResponseEntity<?> getRequestsByConsultant(Long consultantId, AppointmentStatus status) {
-        ResponseEntity<Map<String, String>> consultantError = validateConsultant(consultantId);
-        if (consultantError != null) {
-            return consultantError;
+    public ResponseEntity<?> getRequestsByNurse(Long nurseId, AppointmentStatus status) {
+        ResponseEntity<Map<String, String>> nurseError = validateNurse(nurseId);
+        if (nurseError != null) {
+            return nurseError;
         }
 
         List<AppointmentRequest> requests = status == null
-                ? appointmentRequestRepository.findByClinicSessionClinicConsultantIdOrderByRequestedAtDesc(consultantId)
-                : appointmentRequestRepository.findByClinicSessionClinicConsultantIdAndStatusOrderByRequestedAtDesc(consultantId, status);
+                ? appointmentRequestRepository.findByClinicSessionClinicNurseIdOrderByRequestedAtDesc(nurseId)
+                : appointmentRequestRepository.findByClinicSessionClinicNurseIdAndStatusOrderByRequestedAtDesc(nurseId, status);
 
         return ResponseEntity.ok(requests.stream().map(AppointmentRequestResponse::new).toList());
     }
@@ -115,16 +115,16 @@ public class AppointmentRequestService {
         return ResponseEntity.ok(requests.stream().map(AppointmentRequestResponse::new).toList());
     }
 
-    public ResponseEntity<?> acceptRequest(Long requestId, Long consultantId) {
-        ResponseEntity<Map<String, String>> consultantError = validateConsultant(consultantId);
-        if (consultantError != null) {
-            return consultantError;
+    public ResponseEntity<?> acceptRequest(Long requestId, Long nurseId) {
+        ResponseEntity<Map<String, String>> nurseError = validateNurse(nurseId);
+        if (nurseError != null) {
+            return nurseError;
         }
 
         return appointmentRequestRepository.findById(requestId)
                 .<ResponseEntity<?>>map(request -> {
-                    if (!isAssignedConsultant(request, consultantId)) {
-                        return error("Appointment request does not belong to this consultant", HttpStatus.FORBIDDEN);
+                    if (!isAssignedNurse(request, nurseId)) {
+                        return error("Appointment request does not belong to this nurse", HttpStatus.FORBIDDEN);
                     }
                     if (request.getStatus() != AppointmentStatus.PENDING) {
                         return error("Only pending appointment requests can be accepted", HttpStatus.BAD_REQUEST);
@@ -143,16 +143,16 @@ public class AppointmentRequestService {
                 .orElseGet(() -> error("Appointment request not found", HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<?> removeRequest(Long requestId, Long consultantId) {
-        ResponseEntity<Map<String, String>> consultantError = validateConsultant(consultantId);
-        if (consultantError != null) {
-            return consultantError;
+    public ResponseEntity<?> removeRequest(Long requestId, Long nurseId) {
+        ResponseEntity<Map<String, String>> nurseError = validateNurse(nurseId);
+        if (nurseError != null) {
+            return nurseError;
         }
 
         return appointmentRequestRepository.findById(requestId)
                 .<ResponseEntity<?>>map(request -> {
-                    if (!isAssignedConsultant(request, consultantId)) {
-                        return error("Appointment request does not belong to this consultant", HttpStatus.FORBIDDEN);
+                    if (!isAssignedNurse(request, nurseId)) {
+                        return error("Appointment request does not belong to this nurse", HttpStatus.FORBIDDEN);
                     }
                     if (request.getStatus() == AppointmentStatus.REMOVED) {
                         return error("Appointment request is already removed", HttpStatus.BAD_REQUEST);
@@ -165,16 +165,16 @@ public class AppointmentRequestService {
                 .orElseGet(() -> error("Appointment request not found", HttpStatus.NOT_FOUND));
     }
 
-    private ResponseEntity<Map<String, String>> validateConsultant(Long consultantId) {
-        if (consultantId == null) {
-            return error("consultantId is required", HttpStatus.BAD_REQUEST);
+    private ResponseEntity<Map<String, String>> validateNurse(Long nurseId) {
+        if (nurseId == null) {
+            return error("nurseId is required", HttpStatus.BAD_REQUEST);
         }
-        var consultant = userRepository.findById(consultantId);
-        if (consultant.isEmpty()) {
-            return error("Consultant not found", HttpStatus.NOT_FOUND);
+        var nurse = userRepository.findById(nurseId);
+        if (nurse.isEmpty()) {
+            return error("Nurse not found", HttpStatus.NOT_FOUND);
         }
-        if (consultant.get().getRole() != Role.CONSULTANT) {
-            return error("consultantId must belong to a CONSULTANT user", HttpStatus.BAD_REQUEST);
+        if (nurse.get().getRole() != Role.NURSE) {
+            return error("nurseId must belong to a NURSE user", HttpStatus.BAD_REQUEST);
         }
         return null;
     }
@@ -193,9 +193,9 @@ public class AppointmentRequestService {
         return null;
     }
 
-    private boolean isAssignedConsultant(AppointmentRequest request, Long consultantId) {
+    private boolean isAssignedNurse(AppointmentRequest request, Long nurseId) {
         Clinic clinic = request.getClinicSession().getClinic();
-        return clinic != null && clinic.getConsultant() != null && clinic.getConsultant().getId().equals(consultantId);
+        return clinic != null && clinic.getNurse() != null && clinic.getNurse().getId().equals(nurseId);
     }
 
     private ResponseEntity<Map<String, String>> validateCapacity(ClinicSession clinicSession) {
@@ -224,7 +224,7 @@ public class AppointmentRequestService {
                 String.valueOf(session.getStartTime()),
                 String.valueOf(session.getEndTime()),
                 session.getLocation(),
-                fullName(clinic.getConsultant().getFirstName(), clinic.getConsultant().getLastName()),
+                fullName(clinic.getNurse().getFirstName(), clinic.getNurse().getLastName()),
                 request.getId()
         );
     }
