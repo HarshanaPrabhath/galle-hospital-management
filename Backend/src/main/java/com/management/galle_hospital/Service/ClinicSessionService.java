@@ -36,17 +36,17 @@ public class ClinicSessionService {
         if (request.getClinicId() == null) {
             return error("clinicId is required", HttpStatus.BAD_REQUEST);
         }
-        if (request.getConsultantId() == null) {
-            return error("consultantId is required", HttpStatus.BAD_REQUEST);
+        if (request.getNurseId() == null) {
+            return error("nurseId is required", HttpStatus.BAD_REQUEST);
         }
 
         ClinicSession clinicSession = new ClinicSession();
-        ResponseEntity<?> consultantError = validateConsultant(request.getConsultantId());
-        if (consultantError != null) {
-            return consultantError;
+        ResponseEntity<?> nurseError = validateNurse(request.getNurseId());
+        if (nurseError != null) {
+            return nurseError;
         }
 
-        ResponseEntity<?> clinicError = applyClinic(clinicSession, request.getClinicId(), request.getConsultantId());
+        ResponseEntity<?> clinicError = applyClinic(clinicSession, request.getClinicId(), request.getNurseId());
         if (clinicError != null) {
             return clinicError;
         }
@@ -58,24 +58,24 @@ public class ClinicSessionService {
     public ResponseEntity<?> updateClinicSession(Long id, ClinicSessionRequest request) {
         return clinicSessionRepository.findById(id)
                 .<ResponseEntity<?>>map(clinicSession -> {
-                    Long consultantId = request.getConsultantId();
-                    if (consultantId != null) {
-                        ResponseEntity<?> consultantError = validateConsultant(consultantId);
-                        if (consultantError != null) {
-                            return consultantError;
+                    Long nurseId = request.getNurseId();
+                    if (nurseId != null) {
+                        ResponseEntity<?> nurseError = validateNurse(nurseId);
+                        if (nurseError != null) {
+                            return nurseError;
                         }
                     }
 
                     if (request.getClinicId() != null) {
-                        if (consultantId == null) {
-                            return error("consultantId is required when changing clinicId", HttpStatus.BAD_REQUEST);
+                        if (nurseId == null) {
+                            return error("nurseId is required when changing clinicId", HttpStatus.BAD_REQUEST);
                         }
-                        ResponseEntity<?> clinicError = applyClinic(clinicSession, request.getClinicId(), consultantId);
+                        ResponseEntity<?> clinicError = applyClinic(clinicSession, request.getClinicId(), nurseId);
                         if (clinicError != null) {
                             return clinicError;
                         }
-                    } else if (consultantId != null) {
-                        ResponseEntity<?> ownerError = validateClinicOwnership(clinicSession.getClinic(), consultantId);
+                    } else if (nurseId != null) {
+                        ResponseEntity<?> ownerError = validateClinicOwnership(clinicSession.getClinic(), nurseId);
                         if (ownerError != null) {
                             return ownerError;
                         }
@@ -95,13 +95,13 @@ public class ClinicSessionService {
         return ResponseEntity.ok(Map.of("message", "Clinic session deleted successfully"));
     }
 
-    private ResponseEntity<?> applyClinic(ClinicSession clinicSession, Long clinicId, Long consultantId) {
+    private ResponseEntity<?> applyClinic(ClinicSession clinicSession, Long clinicId, Long nurseId) {
         var clinic = clinicRepository.findById(clinicId);
         if (clinic.isEmpty()) {
             return error("Clinic not found", HttpStatus.BAD_REQUEST);
         }
 
-        ResponseEntity<?> ownerError = validateClinicOwnership(clinic.get(), consultantId);
+        ResponseEntity<?> ownerError = validateClinicOwnership(clinic.get(), nurseId);
         if (ownerError != null) {
             return ownerError;
         }
@@ -110,23 +110,23 @@ public class ClinicSessionService {
         return null;
     }
 
-    private ResponseEntity<?> validateConsultant(Long consultantId) {
-        var consultant = userRepository.findById(consultantId);
-        if (consultant.isEmpty()) {
-            return error("Consultant not found", HttpStatus.BAD_REQUEST);
+    private ResponseEntity<?> validateNurse(Long nurseId) {
+        var nurse = userRepository.findById(nurseId);
+        if (nurse.isEmpty()) {
+            return error("Nurse not found", HttpStatus.BAD_REQUEST);
         }
-        if (consultant.get().getRole() != Role.CONSULTANT) {
-            return error("consultantId must belong to a CONSULTANT user", HttpStatus.BAD_REQUEST);
+        if (nurse.get().getRole() != Role.NURSE) {
+            return error("nurseId must belong to a NURSE user", HttpStatus.BAD_REQUEST);
         }
         return null;
     }
 
-    private ResponseEntity<?> validateClinicOwnership(Clinic clinic, Long consultantId) {
-        if (clinic == null || clinic.getConsultant() == null) {
-            return error("Clinic does not have an assigned consultant", HttpStatus.BAD_REQUEST);
+    private ResponseEntity<?> validateClinicOwnership(Clinic clinic, Long nurseId) {
+        if (clinic == null || clinic.getNurse() == null) {
+            return error("Clinic does not have an assigned nurse", HttpStatus.BAD_REQUEST);
         }
-        if (!clinic.getConsultant().getId().equals(consultantId)) {
-            return error("Consultant can only manage sessions for assigned clinics", HttpStatus.FORBIDDEN);
+        if (!clinic.getNurse().getId().equals(nurseId)) {
+            return error("Nurse can only manage sessions for assigned clinics", HttpStatus.FORBIDDEN);
         }
         return null;
     }

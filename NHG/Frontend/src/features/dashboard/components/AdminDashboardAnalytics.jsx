@@ -16,12 +16,11 @@ import { getClinicDoctorIds, getEntityId } from "../../clinics/components/clinic
 import { getAllDoctors } from "../../doctors/services/doctorService";
 import { getAllLabReports, getAllLabs } from "../../labs/services/labService";
 import { getAllPatients } from "../../patients/services/patientService";
-import { getAllConsultants, getAllNurses } from "../../staff/services/staffService";
+import { getAllNurses } from "../../staff/services/staffService";
 
 const EMPTY_DATA = {
   appointments: [],
   clinics: [],
-  consultants: [],
   doctors: [],
   labReports: [],
   labs: [],
@@ -156,7 +155,6 @@ export default function AdminDashboardAnalytics() {
       const results = await Promise.allSettled([
         getAllPatients(),
         getAllDoctors(),
-        getAllConsultants(),
         getAllNurses(),
         getAllLabs(),
         getAllClinics(),
@@ -168,13 +166,12 @@ export default function AdminDashboardAnalytics() {
       const nextData = {
         patients: asArray(results[0].value),
         doctors: asArray(results[1].value),
-        consultants: asArray(results[2].value),
-        nurses: asArray(results[3].value),
-        labs: asArray(results[4].value),
-        clinics: asArray(results[5].value),
-        sessions: asArray(results[6].value),
-        appointments: asArray(results[7].value),
-        labReports: asArray(results[8].value),
+        nurses: asArray(results[2].value),
+        labs: asArray(results[3].value),
+        clinics: asArray(results[4].value),
+        sessions: asArray(results[5].value),
+        appointments: asArray(results[6].value),
+        labReports: asArray(results[7].value),
       };
 
       const failed = results.find((result) => result.status === "rejected");
@@ -285,7 +282,7 @@ export default function AdminDashboardAnalytics() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard icon={Users} label="Patients" value={data.patients.length} />
             <StatCard icon={Stethoscope} label="Doctors" tone="blue" value={data.doctors.length} />
-            <StatCard icon={UserCog} label="Staff" tone="slate" value={data.consultants.length + data.nurses.length + data.labs.length} />
+            <StatCard icon={UserCog} label="Staff" tone="slate" value={data.nurses.length + data.labs.length} />
             <StatCard icon={CalendarDays} label="Today Sessions" tone="amber" value={analytics.todaySessions} />
             <StatCard icon={ClipboardList} label="Pending Requests" tone="amber" value={analytics.pending} />
             <StatCard icon={Activity} label="Accepted Requests" value={analytics.accepted} />

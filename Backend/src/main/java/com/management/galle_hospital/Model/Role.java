@@ -9,8 +9,6 @@ public enum Role {
 
     PATIENT,
 
-    CONSULTANT,
-
     NURSE,
 
     LAB

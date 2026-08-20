@@ -36,17 +36,17 @@ public class ClinicService {
         if (isBlank(request.getClinicName())) {
             return error("clinicName is required", HttpStatus.BAD_REQUEST);
         }
-        if (request.getConsultantId() == null) {
-            return error("consultantId is required", HttpStatus.BAD_REQUEST);
+        if (request.getNurseId() == null) {
+            return error("nurseId is required", HttpStatus.BAD_REQUEST);
         }
 
         Clinic clinic = new Clinic();
         clinic.setClinicName(request.getClinicName());
         clinic.setDescription(request.getDescription());
 
-        ResponseEntity<?> consultantError = applyConsultant(clinic, request.getConsultantId());
-        if (consultantError != null) {
-            return consultantError;
+        ResponseEntity<?> nurseError = applyNurse(clinic, request.getNurseId());
+        if (nurseError != null) {
+            return nurseError;
         }
 
         ResponseEntity<?> doctorsError = applyDoctors(clinic, request.getDoctorIds());
@@ -63,10 +63,10 @@ public class ClinicService {
                     if (request.getClinicName() != null) clinic.setClinicName(request.getClinicName());
                     if (request.getDescription() != null) clinic.setDescription(request.getDescription());
 
-                    if (request.getConsultantId() != null) {
-                        ResponseEntity<?> consultantError = applyConsultant(clinic, request.getConsultantId());
-                        if (consultantError != null) {
-                            return consultantError;
+                    if (request.getNurseId() != null) {
+                        ResponseEntity<?> nurseError = applyNurse(clinic, request.getNurseId());
+                        if (nurseError != null) {
+                            return nurseError;
                         }
                     }
 
@@ -102,15 +102,15 @@ public class ClinicService {
         return null;
     }
 
-    private ResponseEntity<?> applyConsultant(Clinic clinic, Long consultantId) {
-        var consultant = userRepository.findById(consultantId);
-        if (consultant.isEmpty()) {
-            return error("Consultant not found", HttpStatus.BAD_REQUEST);
+    private ResponseEntity<?> applyNurse(Clinic clinic, Long nurseId) {
+        var nurse = userRepository.findById(nurseId);
+        if (nurse.isEmpty()) {
+            return error("Nurse not found", HttpStatus.BAD_REQUEST);
         }
-        if (consultant.get().getRole() != Role.CONSULTANT) {
-            return error("consultantId must belong to a CONSULTANT user", HttpStatus.BAD_REQUEST);
+        if (nurse.get().getRole() != Role.NURSE) {
+            return error("nurseId must belong to a NURSE user", HttpStatus.BAD_REQUEST);
         }
-        clinic.setConsultant(consultant.get());
+        clinic.setNurse(nurse.get());
         return null;
     }
 

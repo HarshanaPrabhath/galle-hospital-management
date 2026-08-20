@@ -13,9 +13,9 @@ public interface AppointmentRequestRepository extends JpaRepository<AppointmentR
 
     List<AppointmentRequest> findByPatientIdOrderByRequestedAtDesc(Long patientId);
 
-    List<AppointmentRequest> findByClinicSessionClinicConsultantIdOrderByRequestedAtDesc(Long consultantId);
+    List<AppointmentRequest> findByClinicSessionClinicNurseIdOrderByRequestedAtDesc(Long nurseId);
 
-    List<AppointmentRequest> findByClinicSessionClinicConsultantIdAndStatusOrderByRequestedAtDesc(Long consultantId, AppointmentStatus status);
+    List<AppointmentRequest> findByClinicSessionClinicNurseIdAndStatusOrderByRequestedAtDesc(Long nurseId, AppointmentStatus status);
 
     List<AppointmentRequest> findByClinicSessionClinicDoctorsIdAndStatusOrderByAcceptedAtDesc(Long doctorId, AppointmentStatus status);
 
