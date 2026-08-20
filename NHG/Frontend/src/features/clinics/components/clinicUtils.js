@@ -1,7 +1,7 @@
 export const EMPTY_CLINIC_FORM = {
   clinicName: "",
   description: "",
-  consultantId: "",
+  nurseId: "",
   doctorIds: [],
 };
 
@@ -26,7 +26,7 @@ export const getEntityId = (item) =>
   item?.id ??
   item?.clinicId ??
   item?.doctorId ??
-  item?.consultantId ??
+  item?.nurseId ??
   item?.userId ??
   item?.sessionId ??
   item?.clinicSessionId;
@@ -51,20 +51,20 @@ export const doctorName = (doctor) =>
   doctor?.email ||
   `Doctor ${getEntityId(doctor)}`;
 
-export const consultantName = (consultant) =>
-  [consultant?.firstName, consultant?.lastName].filter(Boolean).join(" ") ||
-  consultant?.name ||
-  consultant?.email ||
-  `Consultant ${getEntityId(consultant)}`;
+export const nurseName = (nurse) =>
+  [nurse?.firstName, nurse?.lastName].filter(Boolean).join(" ") ||
+  nurse?.name ||
+  nurse?.email ||
+  `Nurse ${getEntityId(nurse)}`;
 
 export const getClinicDoctorIds = (clinic) =>
   clinic?.doctorIds || clinic?.doctors?.map(getEntityId).filter(Boolean) || [];
 
-export const getClinicConsultantId = (clinic) =>
-  clinic?.consultantId ?? getEntityId(clinic?.consultant);
+export const getClinicNurseId = (clinic) =>
+  clinic?.nurseId ?? getEntityId(clinic?.nurse);
 
-export const getConsultantId = (consultant) =>
-  consultant?.id ?? consultant?.consultantId ?? consultant?.userId;
+export const getNurseId = (nurse) =>
+  nurse?.id ?? nurse?.nurseId ?? nurse?.userId;
 
 export const isClinicAssignedToDoctor = (clinic, authData) => {
   const authIds = [authData?.id, authData?.doctorId, authData?.userId]

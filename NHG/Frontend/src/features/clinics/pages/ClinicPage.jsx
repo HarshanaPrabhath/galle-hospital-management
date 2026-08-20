@@ -9,8 +9,8 @@ import {
   EMPTY_CLINIC_FORM,
   EMPTY_SESSION_FORM,
   asArray,
-  getClinicConsultantId,
   getClinicDoctorIds,
+  getClinicNurseId,
   getEntityId,
   getSessionClinicId,
   isClinicAssignedToDoctor,
@@ -18,7 +18,7 @@ import {
   toApiTime,
 } from "../components/clinicUtils";
 import { getAllDoctors } from "../../doctors/services/doctorService";
-import { getAllConsultants } from "../../staff/services/staffService";
+import { getAllNurses } from "../../staff/services/staffService";
 import {
   createClinic,
   createClinicSession,
@@ -33,15 +33,15 @@ import { getAuthData, ROLE } from "../../../shared/utils/auth";
 
 export default function ClinicPage() {
   const authData = getAuthData();
-  const canManageClinics = authData?.role === ROLE.CONSULTANT;
-  const canManageSessions = authData?.role === ROLE.CONSULTANT;
+  const canManageClinics = authData?.role === ROLE.NURSE;
+  const canManageSessions = authData?.role === ROLE.NURSE;
   const canViewAllClinics =
     canManageClinics ||
     authData?.role === ROLE.PATIENT;
   const [activeTab, setActiveTab] = useState("clinics");
   const [clinics, setClinics] = useState([]);
   const [sessions, setSessions] = useState([]);
-  const [consultants, setConsultants] = useState([]);
+  const [nurses, setNurses] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
@@ -55,11 +55,11 @@ export default function ClinicPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [clinicData, sessionData, doctorData, consultantData] = await Promise.all([
+      const [clinicData, sessionData, doctorData, nurseData] = await Promise.all([
         getAllClinics(),
         getAllClinicSessions(),
         getAllDoctors(),
-        getAllConsultants(),
+        getAllNurses(),
       ]);
 
       setClinics(asArray(clinicData));
@@ -69,11 +69,11 @@ export default function ClinicPage() {
           (doctor) => doctor?.id != null && (!doctor?.role || doctor.role === ROLE.DOCTOR)
         )
       );
-      setConsultants(
-        asArray(consultantData).filter(
-          (consultant) =>
-            consultant?.id != null &&
-            (!consultant?.role || consultant.role === ROLE.CONSULTANT)
+      setNurses(
+        asArray(nurseData).filter(
+          (nurse) =>
+            nurse?.id != null &&
+            (!nurse?.role || nurse.role === ROLE.NURSE)
         )
       );
       setApiError("");
@@ -144,7 +144,7 @@ export default function ClinicPage() {
     setClinicForm({
       clinicName: clinic.clinicName || "",
       description: clinic.description || "",
-      consultantId: getClinicConsultantId(clinic) || "",
+      nurseId: getClinicNurseId(clinic) || "",
       doctorIds: getClinicDoctorIds(clinic).map(Number),
     });
     setSelected(clinic);
@@ -208,15 +208,15 @@ export default function ClinicPage() {
     const nextErrors = {};
     if (!clinicForm.clinicName.trim()) nextErrors.clinicName = "Clinic name is required.";
     if (!clinicForm.description.trim()) nextErrors.description = "Description is required.";
-    if (!clinicForm.consultantId) nextErrors.consultantId = "Consultant is required.";
-    if (clinicForm.consultantId && Number.isNaN(Number(clinicForm.consultantId))) {
-      nextErrors.consultantId = "Select a valid consultant.";
+    if (!clinicForm.nurseId) nextErrors.nurseId = "Nurse is required.";
+    if (clinicForm.nurseId && Number.isNaN(Number(clinicForm.nurseId))) {
+      nextErrors.nurseId = "Select a valid nurse.";
     }
-    const consultantExists = consultants.some(
-      (consultant) => Number(consultant.id) === Number(clinicForm.consultantId)
+    const nurseExists = nurses.some(
+      (nurse) => Number(nurse.id) === Number(clinicForm.nurseId)
     );
-    if (clinicForm.consultantId && !consultantExists) {
-      nextErrors.consultantId = "Selected consultant was not found.";
+    if (clinicForm.nurseId && !nurseExists) {
+      nextErrors.nurseId = "Selected nurse was not found.";
     }
     if (!clinicForm.doctorIds.length) nextErrors.doctorIds = "Select at least one doctor.";
     const allDoctorsExist = clinicForm.doctorIds.every((doctorId) =>
@@ -240,7 +240,7 @@ export default function ClinicPage() {
   const clinicPayload = () => ({
     clinicName: clinicForm.clinicName.trim(),
     description: clinicForm.description.trim(),
-    consultantId: Number(clinicForm.consultantId),
+    nurseId: Number(clinicForm.nurseId),
     doctorIds: clinicForm.doctorIds.map(Number),
   });
 
@@ -251,14 +251,14 @@ export default function ClinicPage() {
     const clinic =
       visibleClinics.find((item) => Number(getEntityId(item)) === clinicId) ||
       selected?.clinic;
-    const consultantId =
-      getClinicConsultantId(clinic) ??
-      selected?.consultantId ??
-      getEntityId(selected?.consultant);
+    const nurseId =
+      getClinicNurseId(clinic) ??
+      selected?.nurseId ??
+      getEntityId(selected?.nurse);
 
     return {
       clinicId,
-      consultantId: consultantId ? Number(consultantId) : null,
+      nurseId: nurseId ? Number(nurseId) : null,
       clinicDate: sessionForm.clinicDate || null,
       startTime: toApiTime(sessionForm.startTime) || null,
       endTime: toApiTime(sessionForm.endTime) || null,
@@ -321,7 +321,7 @@ export default function ClinicPage() {
 
   const title = canManageClinics
     ? "Clinic Management"
-    : authData?.role === ROLE.CONSULTANT
+    : authData?.role === ROLE.NURSE
       ? "Clinic Sessions"
       : authData?.role === ROLE.PATIENT
         ? "Clinics & Sessions"
@@ -360,7 +360,7 @@ export default function ClinicPage() {
       ) : activeTab === "clinics" ? (
         <ClinicTable
           clinics={filteredClinics}
-          consultants={consultants}
+          nurses={nurses}
           doctors={doctors}
           canManage={canManageClinics}
           onEdit={openEditClinic}
@@ -380,7 +380,7 @@ export default function ClinicPage() {
         <ClinicFormModal
           mode={modal === "createClinic" ? "create" : "edit"}
           form={clinicForm}
-          consultants={consultants}
+          nurses={nurses}
           doctors={doctors}
           errors={errors}
           onChange={changeClinic}

@@ -2,7 +2,6 @@ import { getStoredAuthDataSync } from "../../utils/authStorage";
 
 export const ROLE = {
   ADMIN: "ADMIN",
-  CONSULTANT: "CONSULTANT",
   DOCTOR: "DOCTOR",
   LAB: "LAB",
   NURSE: "NURSE",

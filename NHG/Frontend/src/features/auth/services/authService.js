@@ -31,16 +31,6 @@ export const registerLabUser = async (labData) => {
   }
 };
 
-// Register consultant user
-export const registerConsultantUser = async (consultantData) => {
-  try {
-    const response = await apiClient.post('/auth/consultant/register', consultantData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Consultant registration failed' };
-  }
-};
-
 // Register nurse user
 export const registerNurseUser = async (nurseData) => {
   try {

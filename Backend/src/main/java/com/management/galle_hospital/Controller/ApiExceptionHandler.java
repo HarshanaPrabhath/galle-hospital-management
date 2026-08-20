@@ -25,13 +25,13 @@ public class ApiExceptionHandler {
         return error("Email or NIC already exists", HttpStatus.BAD_REQUEST);
     }
 
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException exception) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
         String message = exception.getReason() == null ? "Request failed" : exception.getReason();
         return error(message, status);
     }
-
 
     private ResponseEntity<Map<String, String>> error(String message, HttpStatus status) {
         return ResponseEntity.status(status).body(Map.of("message", message));

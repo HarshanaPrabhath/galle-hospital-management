@@ -1,16 +1,16 @@
 import ClinicModal, { Field } from "./ClinicModal";
 import {
-  consultantName,
   doctorName,
-  getConsultantId,
   getEntityId,
+  getNurseId,
   inputCls,
+  nurseName,
 } from "./clinicUtils";
 
 export default function ClinicFormModal({
   mode,
   form,
-  consultants,
+  nurses,
   doctors,
   errors,
   onChange,
@@ -37,18 +37,18 @@ export default function ClinicFormModal({
             placeholder="Heart related consultations"
           />
         </Field>
-        <Field label="Consultant" error={errors.consultantId}>
+        <Field label="Nurse" error={errors.nurseId}>
           <select
-            className={inputCls(errors.consultantId)}
-            value={form.consultantId}
-            onChange={(event) => onChange("consultantId", event.target.value)}
+            className={inputCls(errors.nurseId)}
+            value={form.nurseId}
+            onChange={(event) => onChange("nurseId", event.target.value)}
           >
-            <option value="">Select consultant</option>
-            {consultants.map((consultant) => {
-              const consultantId = getConsultantId(consultant);
+            <option value="">Select nurse</option>
+            {nurses.map((nurse) => {
+              const nurseId = getNurseId(nurse);
               return (
-                <option key={consultantId} value={consultantId}>
-                  {consultantName(consultant)}
+                <option key={nurseId} value={nurseId}>
+                  {nurseName(nurse)}
                 </option>
               );
             })}

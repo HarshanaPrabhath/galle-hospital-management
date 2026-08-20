@@ -27,10 +27,10 @@ export const getAllAppointmentRequests = async () => {
   }
 };
 
-export const getConsultantAppointmentRequests = async (consultantId, status = "") => {
+export const getNurseAppointmentRequests = async (nurseId, status = "") => {
   try {
     const response = await apiClient.get(
-      `/appointments/consultants/${consultantId}/requests`,
+      `/appointments/nurses/${nurseId}/requests`,
       {
         params: status ? { status } : {},
       }
@@ -52,12 +52,12 @@ export const getDoctorAcceptedAppointmentRequests = async (doctorId) => {
   }
 };
 
-export const acceptAppointmentRequest = async ({ requestId, consultantId }) => {
+export const acceptAppointmentRequest = async ({ requestId, nurseId }) => {
   try {
     const response = await apiClient.patch(
       `/appointments/requests/${requestId}/accept`,
       null,
-      { params: { consultantId } }
+      { params: { nurseId } }
     );
     return response.data;
   } catch (error) {
@@ -65,12 +65,12 @@ export const acceptAppointmentRequest = async ({ requestId, consultantId }) => {
   }
 };
 
-export const removeAppointmentRequest = async ({ requestId, consultantId }) => {
+export const removeAppointmentRequest = async ({ requestId, nurseId }) => {
   try {
     const response = await apiClient.patch(
       `/appointments/requests/${requestId}/remove`,
       null,
-      { params: { consultantId } }
+      { params: { nurseId } }
     );
     return response.data;
   } catch (error) {

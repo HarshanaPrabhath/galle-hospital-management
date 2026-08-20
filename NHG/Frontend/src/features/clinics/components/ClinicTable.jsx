@@ -1,13 +1,13 @@
 import { Pencil, Stethoscope, Trash2, Users } from "lucide-react";
 import {
-  consultantName,
   doctorName,
-  getClinicConsultantId,
   getClinicDoctorIds,
+  getClinicNurseId,
   getEntityId,
+  nurseName,
 } from "./clinicUtils";
 
-export default function ClinicTable({ clinics, consultants, doctors, canManage, onEdit, onDelete }) {
+export default function ClinicTable({ clinics, nurses, doctors, canManage, onEdit, onDelete }) {
   const doctorLabel = (doctorIds = []) => {
     if (!doctorIds.length) return "No doctors assigned";
 
@@ -20,20 +20,11 @@ export default function ClinicTable({ clinics, consultants, doctors, canManage, 
     );
   };
 
-  const consultantLabel = (clinic) => {
-    if (clinic.consultant) return consultantName(clinic.consultant);
-    const consultantId = getClinicConsultantId(clinic);
-    return (
-      consultants.find(
-        (consultant) => String(getEntityId(consultant)) === String(consultantId)
-      )?.firstName
-        ? consultantName(
-            consultants.find(
-              (consultant) => String(getEntityId(consultant)) === String(consultantId)
-            )
-          )
-        : "No consultant assigned"
-    );
+  const nurseLabel = (clinic) => {
+    if (clinic.nurse) return nurseName(clinic.nurse);
+    const nurseId = getClinicNurseId(clinic);
+    const nurse = nurses.find((item) => String(getEntityId(item)) === String(nurseId));
+    return nurse ? nurseName(nurse) : "No nurse assigned";
   };
 
   return (
@@ -42,7 +33,7 @@ export default function ClinicTable({ clinics, consultants, doctors, canManage, 
         <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
           <tr>
             <th className="px-5 py-3 text-left font-medium">Clinic</th>
-            <th className="px-5 py-3 text-left font-medium">Consultant</th>
+            <th className="px-5 py-3 text-left font-medium">Nurse</th>
             <th className="px-5 py-3 text-left font-medium">Doctors</th>
             {canManage && <th className="px-5 py-3 text-right font-medium">Actions</th>}
           </tr>
@@ -71,7 +62,7 @@ export default function ClinicTable({ clinics, consultants, doctors, canManage, 
                   </div>
                 </td>
                 <td className="px-5 py-4 text-xs text-slate-500">
-                  {consultantLabel(clinic)}
+                  {nurseLabel(clinic)}
                 </td>
                 <td className="px-5 py-4 text-xs text-slate-500">
                   <div className="flex items-center gap-1.5">

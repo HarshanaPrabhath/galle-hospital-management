@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
-  Link,
   Route,
   Routes,
 } from "react-router-dom";
@@ -9,7 +8,7 @@ import {
 import "../App.css";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LoadingFallback from "../shared/components/LoadingFallback";
-import { getAuthData, ROLE } from "../shared/utils/auth";
+import { ROLE } from "../shared/utils/auth";
 
 const DashboardLayout = lazy(() => import("../features/dashboard/layout/DashboardLayout"));
 const HomePage = lazy(() => import("../features/public/pages/HomePage"));
@@ -79,7 +78,7 @@ const DASHBOARD_ROUTES = [
     path: "clinics",
     element: <ClinicPage />,
 
-    roles: [ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.PATIENT],
+    roles: [ROLE.NURSE, ROLE.DOCTOR, ROLE.PATIENT],
   },
   {
     path: "patients",
@@ -105,7 +104,7 @@ const DASHBOARD_ROUTES = [
     path: "appointment-requests",
     element: <AppointmentRequestsPage />,
 
-    roles: [ROLE.CONSULTANT, ROLE.PATIENT],
+    roles: [ROLE.NURSE, ROLE.PATIENT],
   },
   {
     path: "session-patients",

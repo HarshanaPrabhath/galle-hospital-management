@@ -20,7 +20,6 @@ export const DASHBOARD_LINKS = [
     icon: LayoutDashboard,
     roles: [
       ROLE.ADMIN,
-      ROLE.CONSULTANT,
       ROLE.DOCTOR,
       ROLE.LAB,
       ROLE.NURSE,
@@ -37,7 +36,7 @@ export const DASHBOARD_LINKS = [
     label: "Clinics",
     to: "/dashboard/clinics",
     icon: Building2,
-    roles: [ROLE.CONSULTANT, ROLE.DOCTOR, ROLE.PATIENT],
+    roles: [ROLE.NURSE, ROLE.DOCTOR, ROLE.PATIENT],
   },
   {
     label: "Patients",
@@ -73,13 +72,12 @@ export const DASHBOARD_LINKS = [
     label: "My Requests",
     to: "/dashboard/appointment-requests",
     icon: CalendarCheck,
-    roles: [ROLE.CONSULTANT, ROLE.PATIENT],
+    roles: [ROLE.NURSE, ROLE.PATIENT],
   },
 ];
 
 export const ROLE_LABELS = {
   [ROLE.ADMIN]: "Admin Management",
-  [ROLE.CONSULTANT]: "Consultant Workspace",
   [ROLE.DOCTOR]: "Doctor Workspace",
   [ROLE.LAB]: "Lab Workspace",
   [ROLE.NURSE]: "Nurse Workspace",
@@ -106,7 +104,7 @@ export const DASHBOARD_HOME_CONTENT = {
       },
       {
         title: "Staff Accounts",
-        description: "Register consultant and nurse staff accounts.",
+        description: "Register and manage nurse staff accounts.",
         to: "/dashboard/staff",
         icon: UserCog,
       },
@@ -142,8 +140,8 @@ export const DASHBOARD_HOME_CONTENT = {
       },
     ],
   },
-  [ROLE.CONSULTANT]: {
-    title: "Consultant Dashboard",
+  [ROLE.NURSE]: {
+    title: "Nurse Dashboard",
     description:
       "Create and manage clinics, doctors assigned to clinics, and clinic sessions.",
     cards: [
@@ -216,7 +214,7 @@ export const getDashboardLinkLabel = (label, role) => {
   if (role === ROLE.PATIENT && label === "Clinics") return "Clinics & Sessions";
   if (role === ROLE.PATIENT && label === "Labs") return "My Lab Reports";
   if (role === ROLE.LAB && label === "Labs") return "Add Lab Report";
-  if (role === ROLE.CONSULTANT && label === "My Requests") {
+  if (role === ROLE.NURSE && label === "My Requests") {
     return "Appointment Requests";
   }
 

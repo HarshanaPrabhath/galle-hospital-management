@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CalendarDays, Check, Clock, MapPin, Stethoscope, X } from "lucide-react";
 import {
   acceptAppointmentRequest,
-  getConsultantAppointmentRequests,
+  getNurseAppointmentRequests,
   getPatientAppointmentRequests,
   removeAppointmentRequest,
 } from "../../appointments/services/appointmentService";
@@ -11,8 +11,8 @@ import { getAuthData, ROLE } from "../../../shared/utils/auth";
 const getAuthPatientId = (authData) =>
   authData?.patientId || authData?.patientID || authData?.id || authData?.userId || "";
 
-const getAuthConsultantId = (authData) =>
-  authData?.consultantId || authData?.consultantID || authData?.id || authData?.userId || "";
+const getAuthNurseId = (authData) =>
+  authData?.nurseId || authData?.nurseID || authData?.id || authData?.userId || "";
 
 const asArray = (data) => {
   if (Array.isArray(data)) return data;
@@ -36,24 +36,24 @@ const statusClasses = {
 
 export default function AppointmentRequestsPage() {
   const authData = getAuthData();
-  const isConsultant = authData?.role === ROLE.CONSULTANT;
+  const isNurse = authData?.role === ROLE.NURSE;
   const patientId = getAuthPatientId(authData);
-  const consultantId = getAuthConsultantId(authData);
+  const nurseId = getAuthNurseId(authData);
   const [requests, setRequests] = useState([]);
-  const [statusFilter, setStatusFilter] = useState(isConsultant ? "PENDING" : "");
+  const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const fetchRequests = useCallback(async () => {
-    const ownerId = isConsultant ? consultantId : patientId;
+    const ownerId = isNurse ? nurseId : patientId;
 
     if (!ownerId) {
       setRequests([]);
       setError(
-        isConsultant
-          ? "Consultant account details are missing from your login session."
+        isNurse
+          ? "Nurse account details are missing from your login session."
           : "Patient account details are missing from your login session."
       );
       setLoading(false);
@@ -63,8 +63,8 @@ export default function AppointmentRequestsPage() {
     try {
       setLoading(true);
       setError("");
-      const data = isConsultant
-        ? await getConsultantAppointmentRequests(consultantId, statusFilter)
+      const data = isNurse
+        ? await getNurseAppointmentRequests(nurseId, statusFilter)
         : await getPatientAppointmentRequests(patientId);
       setRequests(asArray(data));
     } catch (err) {
@@ -73,7 +73,7 @@ export default function AppointmentRequestsPage() {
     } finally {
       setLoading(false);
     }
-  }, [consultantId, isConsultant, patientId, statusFilter]);
+  }, [isNurse, nurseId, patientId, statusFilter]);
 
   useEffect(() => {
     const timer = setTimeout(fetchRequests, 0);
@@ -81,8 +81,8 @@ export default function AppointmentRequestsPage() {
   }, [fetchRequests]);
 
   const handleAction = async (requestId, action) => {
-    if (!consultantId) {
-      setError("Consultant account details are missing from your login session.");
+    if (!nurseId) {
+      setError("Nurse account details are missing from your login session.");
       return;
     }
 
@@ -91,10 +91,10 @@ export default function AppointmentRequestsPage() {
       setError("");
       setSuccess("");
       if (action === "accept") {
-        await acceptAppointmentRequest({ requestId, consultantId });
+        await acceptAppointmentRequest({ requestId, nurseId });
         setSuccess("Appointment request accepted.");
       } else {
-        await removeAppointmentRequest({ requestId, consultantId });
+        await removeAppointmentRequest({ requestId, nurseId });
         setSuccess("Appointment request removed.");
       }
       await fetchRequests();
@@ -113,20 +113,22 @@ export default function AppointmentRequestsPage() {
             Appointment Requests
           </p>
           <h1 className="mt-2 text-2xl font-bold text-[#002325]">
-            {isConsultant ? "Assigned Appointment Requests" : "My Appointment Requests"}
+            {isNurse ? "Assigned Appointment Requests" : "My Appointment Requests"}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            {isConsultant
+            {isNurse
               ? "Review requests automatically assigned through your clinic sessions."
               : "Track appointment requests submitted from your patient account."}
           </p>
         </div>
 
-        {isConsultant && (
+        {isNurse && (
           <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1">
             {[
-              ["PENDING", "Pending"],
               ["", "All"],
+              ["PENDING", "Pending"],
+              ["ACCEPTED", "Accepted"],
+              ["REMOVED", "Removed"],
             ].map(([value, label]) => (
               <button
                 key={label}
@@ -181,11 +183,11 @@ export default function AppointmentRequestsPage() {
                       {request.clinicName || "Clinic session"}
                     </h2>
                     <p className="mt-1 text-sm text-slate-500">
-                      {isConsultant
+                      {isNurse
                         ? `Patient: ${request.patientName || "-"}`
-                        : `Consultant: ${request.consultantName || "-"}`}
+                        : `Nurse: ${request.nurseName || "-"}`}
                     </p>
-                    {isConsultant && request.patientEmail && (
+                    {isNurse && request.patientEmail && (
                       <p className="mt-1 text-xs text-slate-400">
                         {request.patientEmail}
                       </p>
@@ -237,7 +239,7 @@ export default function AppointmentRequestsPage() {
                 {request.removedAt ? ` | Removed: ${formatDateTime(request.removedAt)}` : ""}
               </p>
 
-              {isConsultant && request.status === "PENDING" && (
+              {isNurse && request.status === "PENDING" && (
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                   <button
                     type="button"
