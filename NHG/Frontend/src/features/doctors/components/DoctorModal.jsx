@@ -4,6 +4,7 @@ export default function DoctorModal({
   modal,
   form,
   setForm,
+  error,
   onClose,
   onCreate,
   onUpdate,
@@ -19,6 +20,12 @@ export default function DoctorModal({
           <>
             <p className="mb-4">Are you sure you want to delete this doctor?</p>
 
+            {error && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button onClick={onClose} className="px-4 py-2 border">
                 Cancel
@@ -33,6 +40,7 @@ export default function DoctorModal({
             <DoctorForm
               form={form}
               setForm={setForm}
+              error={error}
               editingDoctor={modal === "edit"}
               onSubmit={modal === "create" ? onCreate : onUpdate}
             />

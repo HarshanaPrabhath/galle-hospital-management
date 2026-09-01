@@ -137,6 +137,7 @@ export default function ClinicPage() {
     setClinicForm(EMPTY_CLINIC_FORM);
     setSelected(null);
     setErrors({});
+    setApiError("");
     setModal("createClinic");
   };
 
@@ -149,6 +150,7 @@ export default function ClinicPage() {
     });
     setSelected(clinic);
     setErrors({});
+    setApiError("");
     setModal("editClinic");
   };
 
@@ -156,6 +158,7 @@ export default function ClinicPage() {
     setSessionForm(EMPTY_SESSION_FORM);
     setSelected(null);
     setErrors({});
+    setApiError("");
     setModal("createSession");
   };
 
@@ -171,12 +174,14 @@ export default function ClinicPage() {
     });
     setSelected(session);
     setErrors({});
+    setApiError("");
     setModal("editSession");
   };
 
   const openDelete = (type, item) => {
     setSelected(item);
     setErrors({});
+    setApiError("");
     setModal(type === "clinic" ? "deleteClinic" : "deleteSession");
   };
 
@@ -184,6 +189,7 @@ export default function ClinicPage() {
     setModal(null);
     setSelected(null);
     setErrors({});
+    setApiError("");
   };
 
   const changeClinic = (field, value) => {
@@ -383,6 +389,7 @@ export default function ClinicPage() {
           nurses={nurses}
           doctors={doctors}
           errors={errors}
+          error={apiError}
           onChange={changeClinic}
           onToggleDoctor={toggleDoctor}
           onClose={closeModal}
@@ -396,6 +403,7 @@ export default function ClinicPage() {
           form={sessionForm}
           clinics={visibleClinics}
           errors={errors}
+          error={apiError}
           onChange={changeSession}
           onClose={closeModal}
           onSubmit={() => saveSession(modal === "createSession" ? "create" : "edit")}
@@ -408,6 +416,7 @@ export default function ClinicPage() {
         <ClinicDeleteModal
           type={modal === "deleteClinic" ? "clinic" : "session"}
           selected={selected}
+          error={apiError}
           onClose={closeModal}
           onDelete={removeSelected}
         />

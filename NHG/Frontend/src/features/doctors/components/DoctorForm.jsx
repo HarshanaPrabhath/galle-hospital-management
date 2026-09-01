@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Mail, Phone, MapPin, Award, Shield, FileText, Lock } from "lucide-react";
 
 const EMPTY = {
@@ -20,16 +21,67 @@ const EMPTY = {
 
 const TITLES = ["DR", "PROF", "MR", "MRS", "MISS"];
 
-export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const inputCls = (base, hasError) =>
+  hasError ? `${base} border-red-300 focus:ring-red-500/20 focus:border-red-500` : base;
+
+function FieldError({ message }) {
+  if (!message) return null;
+  return <p className="mt-1 text-xs text-red-500">{message}</p>;
+}
+
+export default function DoctorForm({ form, setForm, onSubmit, editingDoctor, error }) {
   const local = form || EMPTY;
+  const [errors, setErrors] = useState({});
 
   const change = (key, value) => {
     const updated = { ...local, [key]: value };
     setForm(updated);
+    if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }));
+  };
+
+  const validate = () => {
+    const nextErrors = {};
+    if (!local.firstName.trim()) nextErrors.firstName = "First name is required.";
+    if (!local.lastName.trim()) nextErrors.lastName = "Last name is required.";
+    if (!local.nic.trim()) nextErrors.nic = "NIC number is required.";
+    if (!local.dob) nextErrors.dob = "Date of birth is required.";
+    if (!local.mobile.trim()) nextErrors.mobile = "Mobile phone is required.";
+    if (!local.address.trim()) nextErrors.address = "Residential address is required.";
+    if (!local.email.trim()) {
+      nextErrors.email = "Email address is required.";
+    } else if (!EMAIL_PATTERN.test(local.email.trim())) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+    if (!local.specialization.trim()) nextErrors.specialization = "Specialization is required.";
+    if (!local.licenseNumber.trim()) nextErrors.licenseNumber = "License number is required.";
+    if (!local.department.trim()) nextErrors.department = "Department is required.";
+    if (!local.qualification.trim()) nextErrors.qualification = "Qualifications are required.";
+
+    if (!editingDoctor) {
+      if (!local.password) {
+        nextErrors.password = "Password is required.";
+      } else if (local.password.length < 8) {
+        nextErrors.password = "Password must be at least 8 characters.";
+      }
+      if (!local.confirmPassword) {
+        nextErrors.confirmPassword = "Please confirm the password.";
+      } else if (local.confirmPassword !== local.password) {
+        nextErrors.confirmPassword = "Passwords do not match.";
+      }
+    }
+
+    return nextErrors;
   };
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+    const nextErrors = validate();
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      return;
+    }
     if (typeof onSubmit === "function") {
       onSubmit({ ...local });
     }
@@ -37,7 +89,13 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
 
   return (
     <div className="bg-white rounded-xl w-full max-w-5xl mx-auto p-8 shadow-sm max-h-[85vh] overflow-y-auto space-y-10 scrollbar-thin">
-      
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       {/* RECTANGLE BLOCK 1: Personal Information */}
       <div className="space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">
@@ -65,8 +123,9 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
               placeholder="Kamal"
               value={local.firstName}
               onChange={(e) => change("firstName", e.target.value)}
-              className="border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full"
+              className={inputCls("border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full", errors.firstName)}
             />
+            <FieldError message={errors.firstName} />
           </div>
 
           <div className="md:col-span-5 flex flex-col gap-1.5">
@@ -75,8 +134,9 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
               placeholder="Perera"
               value={local.lastName}
               onChange={(e) => change("lastName", e.target.value)}
-              className="border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full"
+              className={inputCls("border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full", errors.lastName)}
             />
+            <FieldError message={errors.lastName} />
           </div>
         </div>
 
@@ -88,8 +148,9 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
               placeholder="199512345678"
               value={local.nic}
               onChange={(e) => change("nic", e.target.value)}
-              className="border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full"
+              className={inputCls("border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full", errors.nic)}
             />
+            <FieldError message={errors.nic} />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Date of Birth</label>
@@ -97,8 +158,9 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
               type="date"
               value={local.dob}
               onChange={(e) => change("dob", e.target.value)}
-              className="border border-slate-200 h-13 px-5 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full"
+              className={inputCls("border border-slate-200 h-13 px-5 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full", errors.dob)}
             />
+            <FieldError message={errors.dob} />
           </div>
         </div>
       </div>
@@ -120,11 +182,12 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                 placeholder="doctor@hospital.com"
                 value={local.email}
                 onChange={(e) => change("email", e.target.value)}
-                className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.email)}
               />
             </div>
+            <FieldError message={errors.email} />
           </div>
-          
+
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Mobile Phone</label>
             <div className="relative">
@@ -134,9 +197,10 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                 placeholder="0771234567"
                 value={local.mobile}
                 onChange={(e) => change("mobile", e.target.value)}
-                className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.mobile)}
               />
             </div>
+            <FieldError message={errors.mobile} />
           </div>
         </div>
 
@@ -149,9 +213,10 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
               placeholder="No 12, Galle Road, Colombo"
               value={local.address}
               onChange={(e) => change("address", e.target.value)}
-              className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.address)}
             />
           </div>
+          <FieldError message={errors.address} />
         </div>
       </div>
 
@@ -171,19 +236,21 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                 placeholder="Cardiologist"
                 value={local.specialization}
                 onChange={(e) => change("specialization", e.target.value)}
-                className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.specialization)}
               />
             </div>
+            <FieldError message={errors.specialization} />
           </div>
-          
+
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Department</label>
             <input
               placeholder="Cardiology Unit"
               value={local.department}
               onChange={(e) => change("department", e.target.value)}
-              className="border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full"
+              className={inputCls("border border-slate-200 h-13 px-5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full", errors.department)}
             />
+            <FieldError message={errors.department} />
           </div>
         </div>
 
@@ -197,11 +264,12 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                 placeholder="SLMC-12345"
                 value={local.licenseNumber}
                 onChange={(e) => change("licenseNumber", e.target.value)}
-                className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.licenseNumber)}
               />
             </div>
+            <FieldError message={errors.licenseNumber} />
           </div>
-          
+
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Qualifications</label>
             <div className="relative">
@@ -210,9 +278,10 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                 placeholder="MBBS, MD"
                 value={local.qualification}
                 onChange={(e) => change("qualification", e.target.value)}
-                className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.qualification)}
               />
             </div>
+            <FieldError message={errors.qualification} />
           </div>
         </div>
 
@@ -245,11 +314,12 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                   placeholder="••••••••"
                   value={local.password}
                   onChange={(e) => change("password", e.target.value)}
-                  className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.password)}
                 />
               </div>
+              <FieldError message={errors.password} />
             </div>
-            
+
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-700">Confirm Password</label>
               <div className="relative">
@@ -259,9 +329,10 @@ export default function DoctorForm({ form, setForm, onSubmit, editingDoctor }) {
                   placeholder="••••••••"
                   value={local.confirmPassword}
                   onChange={(e) => change("confirmPassword", e.target.value)}
-                  className="border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className={inputCls("border border-slate-200 h-13 pl-11 pr-5 rounded-xl w-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500", errors.confirmPassword)}
                 />
               </div>
+              <FieldError message={errors.confirmPassword} />
             </div>
           </div>
         </div>

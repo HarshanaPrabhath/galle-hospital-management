@@ -82,6 +82,7 @@ export default function LabPage() {
     setForm(EMPTY_LAB_FORM);
     setSelected(null);
     setErrors({});
+    setApiError("");
     setModal("create");
   };
 
@@ -111,6 +112,7 @@ export default function LabPage() {
   const openDelete = (lab) => {
     setSelected(lab);
     setErrors({});
+    setApiError("");
     setModal("delete");
   };
 
@@ -118,6 +120,7 @@ export default function LabPage() {
     setModal(null);
     setSelected(null);
     setErrors({});
+    setApiError("");
   };
 
   const change = (field, value) => {
@@ -197,6 +200,7 @@ export default function LabPage() {
           mode={modal}
           form={form}
           errors={errors}
+          error={apiError}
           onChange={change}
           onClose={closeModal}
           onSubmit={() => saveLab(modal)}
@@ -206,6 +210,7 @@ export default function LabPage() {
       {modal === "delete" && selected && (
         <LabDeleteModal
           lab={selected}
+          error={apiError}
           onClose={closeModal}
           onDelete={removeLab}
         />

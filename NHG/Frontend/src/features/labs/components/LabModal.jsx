@@ -5,6 +5,7 @@ export default function LabModal({
   mode,
   form,
   errors,
+  error,
   onChange,
   onClose,
   onSubmit,
@@ -30,6 +31,11 @@ export default function LabModal({
             <X size={20} />
           </button>
         </div>
+        {error && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
         <div className="grid gap-4 md:grid-cols-2">
           <LabField label="First Name" error={errors.firstName}>
             <input

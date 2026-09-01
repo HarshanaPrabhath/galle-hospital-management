@@ -35,6 +35,7 @@ const mapPatientToAppointmentFields = (patient) => ({
 export default function BookAppointment() {
   const initialPatientId = getAuthPatientId(getAuthData());
   const [form, setForm] = useState(EMPTY_APPOINTMENT_FORM);
+  const [uiLang, setUiLang] = useState("en");
   const [submitted, setSubmitted] = useState(false);
   const [patientDetails, setPatientDetails] = useState({});
   const [patientDetailsLoading, setPatientDetailsLoading] = useState(false);
@@ -146,7 +147,14 @@ export default function BookAppointment() {
   };
 
   if (submitted) {
-    return <AppointmentSuccess form={form} refNo={refNo} onReset={resetForm} />;
+    return (
+      <AppointmentSuccess
+        form={form}
+        refNo={refNo}
+        uiLang={uiLang}
+        onReset={resetForm}
+      />
+    );
   }
 
   return (
@@ -154,6 +162,8 @@ export default function BookAppointment() {
       <Navbar />
       <BookAppointmentForm
         form={form}
+        uiLang={uiLang}
+        onToggleLang={() => setUiLang((prev) => (prev === "en" ? "si" : "en"))}
         patientDetailsError={patientDetailsError}
         patientDetailsLoading={patientDetailsLoading}
         submitError={submitError}
