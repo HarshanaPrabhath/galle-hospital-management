@@ -1,6 +1,6 @@
 package com.management.galle_hospital.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +35,11 @@ public class PharmacyQueueService {
                     .uri("/api/queue-flow-all")
                     .retrieve()
                     .body(String.class);
-            JsonNode payload = body == null ? null : objectMapper.readTree(body);
-            if (payload != null && payload.has("displays")) {
-                return ResponseEntity.ok(payload);
+            if (body != null) {
+                Map<String, Object> payload = objectMapper.readValue(body, new TypeReference<>() {});
+                if (payload.containsKey("displays")) {
+                    return ResponseEntity.ok(payload);
+                }
             }
         } catch (Exception ignored) {
             // Upstream unreachable or unparseable — fall through to an all-zero board.
