@@ -1,4 +1,4 @@
-export default function LabDeleteModal({ lab, onClose, onDelete }) {
+export default function LabDeleteModal({ lab, error, onClose, onDelete }) {
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
@@ -13,6 +13,11 @@ export default function LabDeleteModal({ lab, onClose, onDelete }) {
           ?
           This action cannot be undone.
         </p>
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
 
         <div className="mt-6 flex justify-end gap-3">
           <button

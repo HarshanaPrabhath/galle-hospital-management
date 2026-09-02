@@ -1,13 +1,13 @@
 import ClinicModal from "./ClinicModal";
 
-export default function ClinicDeleteModal({ type, selected, onClose, onDelete }) {
+export default function ClinicDeleteModal({ type, selected, error, onClose, onDelete }) {
   const name =
     type === "clinic"
       ? selected.clinicName
       : `${selected.clinicDate || "this session"} ${selected.location ? `at ${selected.location}` : ""}`;
 
   return (
-    <ClinicModal title={type === "clinic" ? "Remove Clinic" : "Remove Clinic Session"} onClose={onClose}>
+    <ClinicModal title={type === "clinic" ? "Remove Clinic" : "Remove Clinic Session"} error={error} onClose={onClose}>
       <div className="p-5">
         <p className="text-sm text-slate-500">
           Are you sure you want to remove <span className="font-medium text-slate-700">{name}</span>?

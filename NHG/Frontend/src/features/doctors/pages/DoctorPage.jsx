@@ -35,6 +35,7 @@ export default function DoctorPage() {
   const [modal, setModal] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [apiError, setApiError] = useState("");
 
   const fetchDoctors = useCallback(async () => {
     const data = await getAllDoctors();
@@ -56,23 +57,38 @@ export default function DoctorPage() {
 
   // CREATE
   const createDoctor = async (payload) => {
-    await registerDoctor(payload);
-    await fetchDoctors();
-    setModal(null);
+    try {
+      setApiError("");
+      await registerDoctor(payload);
+      await fetchDoctors();
+      setModal(null);
+    } catch (error) {
+      setApiError(error.message || "Failed to register doctor.");
+    }
   };
 
   // UPDATE
   const update = async (payload) => {
-    await updateDoctor(selected.id, payload);
-    await fetchDoctors();
-    setModal(null);
+    try {
+      setApiError("");
+      await updateDoctor(selected.id, payload);
+      await fetchDoctors();
+      setModal(null);
+    } catch (error) {
+      setApiError(error.message || "Failed to update doctor.");
+    }
   };
 
   // DELETE
   const remove = async () => {
-    await deleteDoctor(selected.id);
-    await fetchDoctors();
-    setModal(null);
+    try {
+      setApiError("");
+      await deleteDoctor(selected.id);
+      await fetchDoctors();
+      setModal(null);
+    } catch (error) {
+      setApiError(error.message || "Failed to delete doctor.");
+    }
   };
 
   return (
@@ -81,6 +97,7 @@ export default function DoctorPage() {
       <DoctorHeader
         onAdd={() => {
           setForm(EMPTY_FORM);
+          setApiError("");
           setModal("create");
         }}
       />
@@ -92,10 +109,12 @@ export default function DoctorPage() {
         onEdit={(doc) => {
           setSelected(doc);
           setForm(doc);
+          setApiError("");
           setModal("edit");
         }}
         onDelete={(doc) => {
           setSelected(doc);
+          setApiError("");
           setModal("delete");
         }}
       />
@@ -105,7 +124,11 @@ export default function DoctorPage() {
           modal={modal}
           form={form}
           setForm={setForm}
-          onClose={() => setModal(null)}
+          error={apiError}
+          onClose={() => {
+            setApiError("");
+            setModal(null);
+          }}
           onCreate={createDoctor}
           onUpdate={update}
           onDelete={remove}

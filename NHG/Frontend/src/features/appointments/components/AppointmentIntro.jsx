@@ -1,6 +1,6 @@
 import { IconWrapper } from "./bookAppointmentUi";
 
-export default function AppointmentIntro() {
+export default function AppointmentIntro({ t }) {
   return (
     <>
       <div className="flex flex-col md:flex-row items-start gap-4 bg-gradient-to-br from-slate-900 to-teal-950 border border-slate-800 rounded-2xl p-6 mb-6 shadow-lg text-white">
@@ -11,15 +11,13 @@ export default function AppointmentIntro() {
         </div>
         <div>
           <p className="text-[10px] font-bold tracking-widest text-teal-400 uppercase mb-1">
-            National Tertiary Teaching Complex
+            {t.intro.eyebrow}
           </p>
           <h1 className="text-xl font-black tracking-tight mb-2">
-            Outpatient & Specialist Scheduling Engine
+            {t.intro.title}
           </h1>
           <p className="text-xs text-slate-300 max-w-2xl leading-relaxed font-medium">
-            Populate target metrics to access professional medical streams.
-            Registry operators process transactions systematically against
-            real-time queue caps within one business window.
+            {t.intro.desc}
           </p>
         </div>
       </div>
@@ -31,10 +29,9 @@ export default function AppointmentIntro() {
           </IconWrapper>
         </span>
         <p className="text-xs font-semibold text-amber-900 leading-relaxed">
-          Critical Triage Gate: If facing localized chest discomfort, acute
-          respiratory restrictions, or profound trauma paths, do NOT log
-          electronic queue files. Divert immediately to the Trauma Unit complex
-          floor or initiate <strong>1990 Emergency response lines</strong>.
+          {t.intro.triagePre}
+          <strong>{t.intro.triageStrong}</strong>
+          {t.intro.triagePost}
         </p>
       </div>
     </>

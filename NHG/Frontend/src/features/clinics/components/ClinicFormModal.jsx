@@ -13,13 +13,14 @@ export default function ClinicFormModal({
   nurses,
   doctors,
   errors,
+  error,
   onChange,
   onToggleDoctor,
   onClose,
   onSubmit,
 }) {
   return (
-    <ClinicModal title={mode === "create" ? "Add Clinic" : "Edit Clinic"} onClose={onClose}>
+    <ClinicModal title={mode === "create" ? "Add Clinic" : "Edit Clinic"} error={error} onClose={onClose}>
       <div className="space-y-4 p-5">
         <Field label="Clinic Name" error={errors.clinicName}>
           <input

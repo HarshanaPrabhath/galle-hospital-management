@@ -1,6 +1,6 @@
 import { IconWrapper } from "./bookAppointmentUi";
 
-export default function SubmitSection({ consent, error, loading, onChange }) {
+export default function SubmitSection({ consent, t, error, loading, onChange }) {
   return (
     <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
       <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -11,8 +11,7 @@ export default function SubmitSection({ consent, error, loading, onChange }) {
           className="mt-0.5 h-4 w-4 accent-teal-700"
         />
         <span className="text-xs font-medium leading-relaxed text-slate-600">
-          I confirm the appointment details are accurate and consent to hospital
-          staff using these details to process this appointment request.
+          {t.submit.consent}
         </span>
       </label>
 
@@ -27,7 +26,7 @@ export default function SubmitSection({ consent, error, loading, onChange }) {
           <IconWrapper size={12} className="text-slate-300">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </IconWrapper>
-          End-to-End Secure Health Records Transaction Architecture
+          {t.submit.secureNote}
         </p>
         <button
           type="submit"
@@ -37,7 +36,7 @@ export default function SubmitSection({ consent, error, loading, onChange }) {
           <IconWrapper size={14}>
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8" />
           </IconWrapper>
-          {loading ? "Transmitting..." : "Transmit Session Request"}
+          {loading ? t.submit.buttonLoading : t.submit.button}
         </button>
       </div>
     </div>

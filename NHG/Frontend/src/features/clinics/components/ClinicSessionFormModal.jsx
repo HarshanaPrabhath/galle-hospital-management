@@ -6,12 +6,13 @@ export default function ClinicSessionFormModal({
   form,
   clinics,
   errors,
+  error,
   onChange,
   onClose,
   onSubmit,
 }) {
   return (
-    <ClinicModal title={mode === "create" ? "Add Clinic Session" : "Edit Clinic Session"} onClose={onClose}>
+    <ClinicModal title={mode === "create" ? "Add Clinic Session" : "Edit Clinic Session"} error={error} onClose={onClose}>
       <div className="grid gap-4 p-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <Field label="Clinic" error={errors.clinicId}>

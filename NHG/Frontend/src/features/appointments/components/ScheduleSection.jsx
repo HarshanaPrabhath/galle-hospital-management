@@ -1,19 +1,22 @@
 import { prefLangs, timeSlots } from "../data/bookAppointmentData";
+import { prefLangDisplay } from "../data/bookAppointmentI18n";
 import { Field, inputBase, SectionHeader } from "./bookAppointmentUi";
 
-export default function ScheduleSection({ form, onChange }) {
+export default function ScheduleSection({ form, t, uiLang, onChange }) {
+  const langLabels = prefLangDisplay[uiLang] || prefLangDisplay.en;
+
   return (
     <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
       <SectionHeader
         icon={<path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2" />}
         color={{ bg: "bg-amber-50", icon: "text-amber-600" }}
-        title="4. Time-Space Parameters"
+        title={t.schedule.title}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <Field
-          label="Target Calendar Date"
+          label={t.schedule.date}
           required
-          hint="Standard clinics operate Monday through Saturday."
+          hint={t.schedule.dateHint}
         >
           <input
             type="date"
@@ -24,24 +27,24 @@ export default function ScheduleSection({ form, onChange }) {
             className={inputBase}
           />
         </Field>
-        <Field label="Preferred Queue Block Slot" required>
+        <Field label={t.schedule.time} required>
           <select
             value={form.time}
             onChange={onChange("time")}
             required
             className={inputBase}
           >
-            <option value="">Select target session time</option>
+            <option value="">{t.schedule.timePlaceholder}</option>
             {timeSlots.map((time) => (
               <option key={time} value={time}>
-                {time} hrs
+                {time} {t.schedule.hrs}
               </option>
             ))}
           </select>
         </Field>
       </div>
 
-      <Field label="Primary Consultation Dialect">
+      <Field label={t.schedule.lang}>
         <div className="flex gap-2 flex-wrap mt-1">
           {prefLangs.map((language) => {
             const isActive = form.lang === language;
@@ -62,7 +65,7 @@ export default function ScheduleSection({ form, onChange }) {
                   onChange={onChange("lang")}
                   className="sr-only"
                 />
-                {language}
+                {langLabels[language] || language}
               </label>
             );
           })}

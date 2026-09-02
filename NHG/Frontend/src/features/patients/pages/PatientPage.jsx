@@ -74,6 +74,7 @@ export default function PatientPage() {
     setForm(EMPTY_FORM);
     setErrors({});
     setSelected(null);
+    setApiError("");
     setModal("create");
   };
 
@@ -81,11 +82,13 @@ export default function PatientPage() {
     setForm({ ...patient });
     setErrors({});
     setSelected(patient);
+    setApiError("");
     setModal("edit");
   };
 
   const openDelete = (patient) => {
     setSelected(patient);
+    setApiError("");
     setModal("delete");
   };
 
@@ -93,6 +96,7 @@ export default function PatientPage() {
     setModal(null);
     setSelected(null);
     setErrors({});
+    setApiError("");
   };
 
   const validate = () => {
@@ -215,6 +219,7 @@ export default function PatientPage() {
         selected={selected}
         form={form}
         errors={errors}
+        error={apiError}
         bloodGroups={BLOOD_GROUPS}
         onChange={change}
         onClose={closeModal}
