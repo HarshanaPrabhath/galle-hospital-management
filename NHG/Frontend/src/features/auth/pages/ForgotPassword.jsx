@@ -37,6 +37,7 @@ export default function ForgotPassword() {
     } finally {
       setLoading(false);
     }
+    
   };
 
   const handleResetSubmit = async (event) => {

@@ -43,6 +43,7 @@ export default function PatientModal({
   selected,
   form,
   errors,
+  error,
   bloodGroups,
   onChange,
   onClose,
@@ -62,6 +63,11 @@ export default function PatientModal({
             ?
             This action cannot be undone.
           </p>
+          {error && (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
         </div>
         <div className="flex gap-3 px-6 pb-6">
           <button
@@ -86,6 +92,11 @@ export default function PatientModal({
   return (
     <ModalShell title={modal === "create" ? "Add Patient" : "Edit Patient"} onClose={onClose}>
       <div className="p-6 space-y-4">
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <Field label="First Name" error={errors.firstName}>
             <input

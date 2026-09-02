@@ -8,7 +8,7 @@ import {
 } from "../../clinics/components/clinicUtils";
 import { IconWrapper, SectionHeader } from "./bookAppointmentUi";
 
-export default function AppointmentTypeSection({ selectedType, onChange }) {
+export default function AppointmentTypeSection({ selectedType, t, onChange }) {
   const [sessions, setSessions] = useState([]);
   const [clinicById, setClinicById] = useState({});
   const [loading, setLoading] = useState(true);
@@ -59,11 +59,11 @@ export default function AppointmentTypeSection({ selectedType, onChange }) {
       <SectionHeader
         icon={<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 01-2-2h5l2 3h9a2 2 0 012 2z" />}
         color={{ bg: "bg-blue-50", icon: "text-blue-700" }}
-        title="2. Allocation Target Matrix"
+        title={t.type.title}
       />
       {loading && (
         <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs font-semibold text-blue-700">
-          Loading clinic sessions...
+          {t.type.loading}
         </div>
       )}
       {error && (
@@ -73,7 +73,7 @@ export default function AppointmentTypeSection({ selectedType, onChange }) {
       )}
       {!loading && !error && sessions.length === 0 && (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-xs font-semibold text-slate-400">
-          No clinic sessions available.
+          {t.type.empty}
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -108,16 +108,18 @@ export default function AppointmentTypeSection({ selectedType, onChange }) {
                     <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
                   </IconWrapper>
                   <p className="text-xs font-bold text-slate-900">
-                    {clinic?.clinicName || session.clinicName || "Unknown clinic"}
+                    {clinic?.clinicName ||
+                      session.clinicName ||
+                      t.type.unknownClinic}
                   </p>
                 </div>
                 <p className="text-[11px] font-medium text-slate-400 mt-1 leading-normal">
-                  {session.clinicDate || "No date"} at{" "}
+                  {session.clinicDate || t.type.noDate} {t.type.at}{" "}
                   {normalizeTime(session.startTime) || "--:--"} -{" "}
                   {normalizeTime(session.endTime) || "--:--"}
                 </p>
                 <p className="text-[11px] font-medium text-slate-400 mt-1 leading-normal">
-                  {session.location || "No location"} | Capacity:{" "}
+                  {session.location || t.type.noLocation} | {t.type.capacity}:{" "}
                   {session.maximumPatients ?? "-"}
                 </p>
               </div>
