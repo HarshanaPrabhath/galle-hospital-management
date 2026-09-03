@@ -95,4 +95,45 @@ public class EmailService {
             logger.error("Failed to send appointment accepted email to {}", toEmail, exception);
         }
     }
+
+    public void sendClinicAssignmentEmail(String toEmail, String doctorName, String clinicName,
+                                          String clinicDescription, String nurseName, Long clinicId) {
+        if (toEmail == null || toEmail.isBlank()) {
+            logger.warn("Cannot send clinic assignment email for clinic {} because doctor email is missing", clinicId);
+            return;
+        }
+
+        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
+        if (mailSender == null) {
+            logger.warn("Mail sender is not configured. Doctor {} assigned to clinic {}", toEmail, clinicId);
+            return;
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        if (!fromEmail.isBlank()) {
+            message.setFrom(fromEmail);
+        }
+        message.setTo(toEmail);
+        message.setSubject("Galle Hospital clinic assignment");
+        message.setText("""
+                Dear Dr. %s,
+
+                You have been assigned to a clinic at Galle Hospital.
+
+                Clinic ID: %s
+                Clinic: %s
+                Description: %s
+                Coordinating nurse: %s
+
+                You will be notified separately of the scheduled sessions for this clinic.
+                Please contact the coordinating nurse if you have any questions.
+                """.formatted(doctorName, clinicId, clinicName,
+                clinicDescription == null || clinicDescription.isBlank() ? "-" : clinicDescription, nurseName));
+
+        try {
+            mailSender.send(message);
+        } catch (MailException exception) {
+            logger.error("Failed to send clinic assignment email to {}", toEmail, exception);
+        }
+    }
 }
