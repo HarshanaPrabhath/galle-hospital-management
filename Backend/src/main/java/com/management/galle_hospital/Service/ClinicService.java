@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class ClinicService {
     private final ClinicRepository clinicRepository;
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public List<Clinic> getAllClinics() {
         return clinicRepository.findAll();
@@ -54,12 +57,16 @@ public class ClinicService {
             return doctorsError;
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(clinicRepository.save(clinic));
+        Clinic saved = clinicRepository.save(clinic);
+        notifyNewlyAssignedDoctors(saved, Set.of());
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     public ResponseEntity<?> updateClinic(Long id, ClinicRequest request) {
         return clinicRepository.findById(id)
                 .<ResponseEntity<?>>map(clinic -> {
+                    Set<Long> previousDoctorIds = currentDoctorIds(clinic);
+
                     if (request.getClinicName() != null) clinic.setClinicName(request.getClinicName());
                     if (request.getDescription() != null) clinic.setDescription(request.getDescription());
 
@@ -75,7 +82,9 @@ public class ClinicService {
                         return doctorsError;
                     }
 
-                    return ResponseEntity.ok(clinicRepository.save(clinic));
+                    Clinic saved = clinicRepository.save(clinic);
+                    notifyNewlyAssignedDoctors(saved, previousDoctorIds);
+                    return ResponseEntity.ok(saved);
                 })
                 .orElseGet(() -> notFound("Clinic not found"));
     }
@@ -112,6 +121,41 @@ public class ClinicService {
         }
         clinic.setNurse(nurse.get());
         return null;
+    }
+
+    private Set<Long> currentDoctorIds(Clinic clinic) {
+        if (clinic.getDoctors() == null) {
+            return Set.of();
+        }
+        return clinic.getDoctors().stream().map(Doctor::getId).collect(Collectors.toSet());
+    }
+
+    private void notifyNewlyAssignedDoctors(Clinic clinic, Set<Long> previousDoctorIds) {
+        if (clinic.getDoctors() == null) {
+            return;
+        }
+        String nurseName = clinic.getNurse() == null
+                ? "-"
+                : fullName(clinic.getNurse().getFirstName(), clinic.getNurse().getLastName());
+        for (Doctor doctor : clinic.getDoctors()) {
+            if (previousDoctorIds.contains(doctor.getId())) {
+                continue;
+            }
+            emailService.sendClinicAssignmentEmail(
+                    doctor.getEmail(),
+                    fullName(doctor.getFirstName(), doctor.getLastName()),
+                    clinic.getClinicName(),
+                    clinic.getDescription(),
+                    nurseName,
+                    clinic.getId()
+            );
+        }
+    }
+
+    private String fullName(String firstName, String lastName) {
+        String first = firstName == null ? "" : firstName.trim();
+        String last = lastName == null ? "" : lastName.trim();
+        return (first + " " + last).trim();
     }
 
     private ResponseEntity<Map<String, String>> error(String message, HttpStatus status) {
