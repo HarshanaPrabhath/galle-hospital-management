@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ArrowRight, X } from 'lucide-react';
+import { Plus, ArrowRight, X, CheckCircle2 } from 'lucide-react';
 import { registerUser } from '../services/authService';
 
 export default function Register({ onClose, onSwitchToLogin, onRegistrationSuccess }) {
@@ -17,7 +17,7 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
   });
 
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -30,7 +30,7 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
+    setSuccess(false);
     setLoading(true);
 
     const { firstName, lastName, nic, dob, mobile, address, email, password, confirmPassword } = formData;
@@ -54,22 +54,58 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
 
     try {
       await registerUser(formData);
-      setSuccess('Registration successful! Opening login...');
+      setSuccess(true);
+      setLoading(false);
       setTimeout(() => {
         onRegistrationSuccess?.();
         onSwitchToLogin?.();
-      }, 900);
+      }, 2500);
+      return;
     } catch (err) {
       const errorMessage = err.message || 'Registration failed';
       setError(errorMessage);
       console.error('Registration error:', err);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
+  if (success) {
+    return (
+      <div className="relative bg-white rounded-2xl shadow-sm border border-slate-200 p-8 w-full max-w-lg flex flex-col items-center text-center">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-4 top-4 text-slate-400 hover:text-slate-700 transition"
+            aria-label="Close registration modal"
+          >
+            <X size={22} />
+          </button>
+        )}
+        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-5">
+          <CheckCircle2 className="w-9 h-9 text-[#1f6b50]" strokeWidth={2.5} />
+        </div>
+        <h1 className="font-serif text-2xl text-[#16243e] mb-2">Registration successful!</h1>
+        <p className="text-sm text-slate-500 mb-6 max-w-sm">
+          Your NHG Patient Portal account has been created. You can now sign in with your
+          email and password.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            onRegistrationSuccess?.();
+            onSwitchToLogin?.();
+          }}
+          className="w-full py-3 bg-[#1f6b50] text-white text-sm font-semibold rounded-lg hover:bg-[#1a5c44] transition-colors inline-flex items-center justify-center gap-1"
+        >
+          Continue to sign in <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    /* Removed the outer full-page div wrapper. 
+    /* Removed the outer full-page div wrapper.
       The main card is now the root component. Added 'max-h-full' and 'overflow-hidden' 
       to make sure this component fits comfortably inside whatever modal or grid container you place it in.
     */
@@ -106,12 +142,6 @@ export default function Register({ onClose, onSwitchToLogin, onRegistrationSucce
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded text-sm">
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="p-3 bg-green-50 border border-green-200 text-green-600 rounded text-sm">
-            {success}
           </div>
         )}
 
