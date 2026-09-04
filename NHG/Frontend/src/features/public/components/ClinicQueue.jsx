@@ -81,7 +81,7 @@ function ClinicQueue() {
               </p>
             </div>
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              Today's Clinic Queue
+              Today's Pharmacy Queue
             </h2>
           </div>
 
