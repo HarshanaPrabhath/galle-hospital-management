@@ -120,7 +120,7 @@ function HeroSection({ onBookAppointment }) {
           </div>
         </div>
 
-        {/* Right – Interactive Live Queue Dashboard */}
+        {/* Right – Interactive Live Queue Dashboard
         <div className="w-full lg:w-80 bg-slate-900/60 backdrop-blur-md rounded-2xl p-6 border border-slate-800 shadow-xl">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
             <div className="flex items-center gap-2">
@@ -144,19 +144,19 @@ function HeroSection({ onBookAppointment }) {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
 }
 
 function QuickNav({ onBookAppointment }) {
+  const navigate = useNavigate();
+
   const items = [
-    { icon: "📅", label: "Book Appointment", sub: "Online scheduling" },
-    { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Profiles & specialties" },
-    { icon: "🏥", label: "Today's Clinics", sub: "Real-time updates" },
-    { icon: "🚑", label: "Emergency Help", sub: "Ambulance response" },
-   
+    { icon: "📅", label: "Book Appointment", sub: "Online scheduling", onClick: onBookAppointment },
+    { icon: "👨‍⚕️", label: "Find a Doctor", sub: "Profiles & specialties", onClick: () => navigate("/doctors") },
+    { icon: "🚑", label: "Emergency Help", sub: "Ambulance response", onClick: () => navigate("/contact") },
   ];
   return (
     <div className="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm overflow-hidden">
@@ -165,7 +165,7 @@ function QuickNav({ onBookAppointment }) {
           <button
             key={item.label}
             type="button"
-            onClick={item.label === "Book Appointment" ? onBookAppointment : undefined}
+            onClick={item.onClick}
             className="flex-1 min-w-[140px] md:min-w-max flex flex-col items-center text-center py-4 px-5 hover:bg-slate-50 transition-all group"
           >
             <span className="text-xl mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
